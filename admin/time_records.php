@@ -42,6 +42,7 @@ if (isset($_POST['user_id'])) {
     }
 }
 
+$today = date("Y-m-d");
 
 ?>
 <!DOCTYPE html>
@@ -218,26 +219,21 @@ if (isset($_POST['user_id'])) {
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <h3 id="currentTime"></h3>
-                                <table id="example2" class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Employee</th>
-                                            <th>Time In</th>
-                                            <th>Time Out</th>
-                                            <th>Status</th>
-                                            <th>Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        $today = date("Y-m-d");
-
-                                        foreach ($records as $record):
-                                            $log_date = date("Y-m-d", strtotime($record['log_date']));
-                                            if ($log_date === $today):
-                                        ?>
+                                <?php if (count($records) > 0): ?>
+                                    <h3 id="currentTime"></h3>
+                                    <table id="example2" class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Employee</th>
+                                                <th>Time In</th>
+                                                <th>Time Out</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($records as $record): ?>
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($record['employee_name']); ?></td>
                                                     <td><?php echo $record['log_in'] ? date("h:i A", strtotime($record['log_in'])) : 'N/A'; ?></td>
@@ -254,7 +250,7 @@ if (isset($_POST['user_id'])) {
                                                         ?>
                                                     </td>
                                                     <td>
-                                                        <?php echo date("F j, Y", strtotime($record['log_date'])); ?>
+                                                        <?php echo date("F j, Y"); ?>
                                                     </td>
                                                     <td>
                                                         <?php if ($record['log_in'] == null && $record['absent'] != 1): ?>
@@ -269,13 +265,12 @@ if (isset($_POST['user_id'])) {
                                                         <?php endif; ?>
                                                     </td>
                                                 </tr>
-                                        <?php
-                                            endif; // End today's date condition
-                                        endforeach;
-                                        ?>
-                                    </tbody>
-                                </table>
-
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                <?php else: ?>
+                                    <p>No records found for today.</p>
+                                <?php endif; ?>
                             </div>
                             <!-- /.card-body -->
                         </div>
