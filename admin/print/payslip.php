@@ -49,6 +49,28 @@ foreach ($timekeeping as $log) {
     $total_present += $log['present'];
     $total_absent += $log['absent'];
 }
+
+// Fetch absences
+$query_absences = "SELECT * FROM absences WHERE user_id = :user_id AND absence_date BETWEEN :from_date AND :to_date";
+$stmt_absences = $conn->prepare($query_absences);
+$stmt_absences->execute([':user_id' => $user_id, ':from_date' => $from_date, ':to_date' => $to_date]);
+$absences = $stmt_absences->fetchAll(PDO::FETCH_ASSOC);
+
+// Initialize the reason string for display
+$absence_reasons = "";
+if (!empty($absences)) {
+    foreach ($absences as $absence) {
+        $absence_reasons .= $absence['absence_date'] . " - " . $absence['reason'] . "<br>";
+    }
+} else {
+    $absence_reasons = "No reason";
+}
+
+// Fetch work schedule
+$query_schedule = "SELECT shift_start, shift_end, work_days FROM schedules WHERE user_id = :user_id";
+$stmt_schedule = $conn->prepare($query_schedule);
+$stmt_schedule->execute([':user_id' => $user_id]);
+$schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -141,6 +163,27 @@ foreach ($timekeeping as $log) {
                     <th>Absent Days</th>
                     <td><?php echo $total_absent; ?></td>
                 </tr>
+                <tr>
+                    <th>Absence Details</th>
+                    <td><?php echo $absence_reasons; ?></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="schedule">
+            <table>
+                <tr>
+                    <th>Work Days</th>
+                    <td><?php echo $schedule['work_days']; ?></td>
+                </tr>
+                <tr>
+                    <th>Shift Start</th>
+                    <td><?php echo $schedule['shift_start']; ?></td>
+                </tr>
+                <tr>
+                    <th>Shift End</th>
+                    <td><?php echo $schedule['shift_end']; ?></td>
+                </tr>
             </table>
         </div>
 
@@ -168,6 +211,8 @@ foreach ($timekeeping as $log) {
                 </tr>
             </table>
         </div>
+
+
 
         <div class="total">
             <p><strong>Net Salary: ₱<?php echo number_format($net_salary, 2); ?></strong></p>

@@ -54,6 +54,29 @@ foreach ($timekeeping as $log) {
     $total_present += $log['present'];
     $total_absent += $log['absent'];
 }
+
+
+$query_absences = "SELECT * FROM absences WHERE user_id = :user_id AND absence_date BETWEEN :from_date AND :to_date";
+$stmt_absences = $conn->prepare($query_absences);
+$stmt_absences->execute([':user_id' => $user_id, ':from_date' => $from_date, ':to_date' => $to_date]);
+$absences = $stmt_absences->fetchAll(PDO::FETCH_ASSOC);
+
+// Initialize the reason string for display
+$absence_reasons = "";
+if (!empty($absences)) {
+    foreach ($absences as $absence) {
+        $absence_reasons .= $absence['absence_date'] . " - " . $absence['reason'] . "<br>";
+    }
+} else {
+    $absence_reasons = "No reason";
+}
+
+
+$query_schedule = "SELECT shift_start, shift_end, work_days FROM schedules WHERE user_id = :user_id";
+$stmt_schedule = $conn->prepare($query_schedule);
+$stmt_schedule->execute([':user_id' => $user_id]);
+$schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -223,6 +246,18 @@ foreach ($timekeeping as $log) {
                                                     <td><strong>Basic Salary:</strong></td>
                                                     <td>₱<?php echo number_format($user['basic_salary'], 2); ?></td>
                                                 </tr>
+                                                <tr>
+                                                    <td><strong>Shift Start:</strong></td>
+                                                    <td><?php echo isset($schedule['shift_start']) ? date("h:i A", strtotime($schedule['shift_start'])) : "Not Assigned"; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Shift End:</strong></td>
+                                                    <td><?php echo isset($schedule['shift_end']) ? date("h:i A", strtotime($schedule['shift_end'])) : "Not Assigned"; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Work Days:</strong></td>
+                                                    <td><?php echo isset($schedule['work_days']) ? $schedule['work_days'] : "Not Assigned"; ?></td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -243,6 +278,12 @@ foreach ($timekeeping as $log) {
                                                 <tr>
                                                     <td><strong>Absent Days:</strong></td>
                                                     <td><?php echo $total_absent; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Reason:</strong></td>
+                                                    <td>
+                                                        <?php echo $absence_reasons; ?>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>

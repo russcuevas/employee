@@ -1,5 +1,12 @@
 <?php
-include('../database/connection.php');
+session_start();
+include '../database/connection.php';
+
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:admin_login.php');
+}
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_id = $_POST['user_id'];
@@ -13,12 +20,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($attendance) {
         $update_stmt = $conn->prepare("UPDATE timekeeping SET log_out = ? WHERE user_id = ? AND log_date = ?");
         if ($update_stmt->execute([$log_out, $user_id, $log_date])) {
-            echo "<script>alert('Time Out Recorded Successfully!'); window.location.href='time_out.php';</script>";
+            $_SESSION['success'] = "Time Out Recorded Successfully!";
+            header('Location: time_out.php');
+            exit();
         } else {
-            echo "<script>alert('Failed to record time out!'); window.location.href='time_out.php';</script>";
+            $_SESSION['error'] = "Failed to record time out!";
+            header('Location: time_out.php');
+            exit();
         }
     } else {
-        echo "<script>alert('No time-in record found for this user today!'); window.location.href='time_out.php';</script>";
+        $_SESSION['error'] = "No time-in record found for this user today!";
+        header('Location: time_out.php');
+        exit();
     }
 }
 
@@ -185,6 +198,21 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
 
             <!-- Main content -->
             <section class="content">
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success">
+                        <?php echo $_SESSION['success']; ?>
+                        <?php unset($_SESSION['success']);
+                        ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger">
+                        <?php echo $_SESSION['error']; ?>
+                        <?php unset($_SESSION['error']);
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
@@ -236,11 +264,14 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
                                     </thead>
                                     <tbody>
                                         <?php foreach ($timekeeping_records as $record): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($record['name']); ?></td>
-                                                <td><?php echo htmlspecialchars($record['log_in']); ?></td>
-                                                <td><?php echo !empty($record['log_out']) ? htmlspecialchars($record['log_out']) : 'Not yet timed out'; ?></td>
-                                            </tr>
+                                            <?php if (!empty($record['log_in'])):
+                                            ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($record['name']); ?></td>
+                                                    <td><?php echo htmlspecialchars($record['log_in']); ?></td>
+                                                    <td><?php echo !empty($record['log_out']) ? htmlspecialchars($record['log_out']) : 'Not yet timed out'; ?></td>
+                                                </tr>
+                                            <?php endif; ?>
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>

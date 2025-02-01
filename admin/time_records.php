@@ -1,21 +1,49 @@
 <?php
+session_start();
 include('../database/connection.php');
+
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:admin_login.php');
+}
 
 $stmt = $conn->prepare("
     SELECT 
+        u.user_id, 
         u.name AS employee_name, 
         t.log_in, 
         t.log_out, 
         t.present, 
-        DATE(t.log_in) AS log_date 
+        t.log_date, 
+        t.absent
     FROM timekeeping t
-    INNER JOIN users u ON t.user_id = u.user_id
+    RIGHT JOIN users u ON t.user_id = u.user_id
 ");
+
 $stmt->execute();
 $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-?>
 
+if (isset($_POST['user_id'])) {
+    $user_id = $_POST['user_id'];
+    $log_date = date("Y-m-d");
+
+    $stmt = $conn->prepare("
+        INSERT INTO timekeeping (user_id, log_in, log_out, present, absent, log_date)
+        VALUES ('$user_id', NULL, NULL, 0, 1, '$log_date')
+    ");
+
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Mark as absent";
+        header('Location: time_records.php');
+        exit();
+    } else {
+        echo "Error updating the record.";
+    }
+}
+
+
+?>
 <!DOCTYPE html>
 <html>
 
@@ -167,6 +195,21 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Main content -->
             <section class="content">
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success">
+                        <?php echo $_SESSION['success']; ?>
+                        <?php unset($_SESSION['success']);
+                        ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger">
+                        <?php echo $_SESSION['error']; ?>
+                        <?php unset($_SESSION['error']);
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
@@ -175,6 +218,7 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
+                                <h3 id="currentTime"></h3>
                                 <table id="example2" class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
@@ -183,28 +227,55 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <th>Time Out</th>
                                             <th>Status</th>
                                             <th>Date</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($records as $record): ?>
-                                            <tr>
-                                                <td><?php echo htmlspecialchars($record['employee_name']); ?></td>
-                                                <td><?php echo date("h:i A", strtotime($record['log_in'])); ?></td>
-                                                <td><?php echo $record['log_out'] ? date("h:i A", strtotime($record['log_out'])) : 'N/A'; ?></td>
-                                                <td>
-                                                    <?php
-                                                    if ($record['present'] == 1) {
-                                                        echo 'Present';
-                                                    } else {
-                                                        echo 'Absent';
-                                                    }
-                                                    ?>
-                                                </td>
-                                                <td><?php echo date("F j, Y", strtotime($record['log_date'])); ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <?php
+                                        $today = date("Y-m-d");
+
+                                        foreach ($records as $record):
+                                            $log_date = date("Y-m-d", strtotime($record['log_date']));
+                                            if ($log_date === $today):
+                                        ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($record['employee_name']); ?></td>
+                                                    <td><?php echo $record['log_in'] ? date("h:i A", strtotime($record['log_in'])) : 'N/A'; ?></td>
+                                                    <td><?php echo $record['log_out'] ? date("h:i A", strtotime($record['log_out'])) : 'N/A'; ?></td>
+                                                    <td>
+                                                        <?php
+                                                        if ($record['present'] == 1) {
+                                                            echo 'Present';
+                                                        } else if ($record['present'] === NULL) {
+                                                            echo 'No record';
+                                                        } else {
+                                                            echo 'Absent';
+                                                        }
+                                                        ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php echo date("F j, Y", strtotime($record['log_date'])); ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if ($record['log_in'] == null && $record['absent'] != 1): ?>
+                                                            <form method="POST">
+                                                                <input type="hidden" name="user_id" value="<?php echo $record['user_id']; ?>">
+                                                                <button type="submit" class="btn btn-danger btn-sm">Mark as absent</button>
+                                                            </form>
+                                                        <?php elseif ($record['log_in'] != null): ?>
+                                                            <p>Present</p>
+                                                        <?php elseif ($record['absent'] == 1): ?>
+                                                            <p>Absent</p>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                </tr>
+                                        <?php
+                                            endif; // End today's date condition
+                                        endforeach;
+                                        ?>
                                     </tbody>
                                 </table>
+
                             </div>
                             <!-- /.card-body -->
                         </div>
@@ -256,6 +327,22 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 "autoWidth": false,
             });
         });
+    </script>
+    <script>
+        function updateTime() {
+            let now = new Date();
+            let formattedTime = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
+
+            document.getElementById("currentTime").innerText = formattedTime;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
     </script>
 </body>
 
