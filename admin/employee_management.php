@@ -149,8 +149,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (isset($_SESSION['error'])): ?>
                     <div class="alert alert-danger">
                         <?php echo $_SESSION['error']; ?>
-                        <?php unset($_SESSION['error']);
-                        ?>
+                        <?php unset($_SESSION['error']); ?>
                     </div>
                 <?php endif; ?>
                 <div class="row">
@@ -167,17 +166,35 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <tr>
                                             <th>Employee</th>
                                             <th>Position</th>
-                                            <th>Actions</th>
+                                            <th>Tax</th>
+                                            <th>Information</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach ($employee as $employees): ?>
-                                            <td><?php echo $employees['name'] ?></td>
-                                            <td><?php echo $employees['position'] ?></td>
-                                            <td>
-                                                <a href="update_employee.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-warning">Update</a>
-                                                <a href="delete_employee.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a>
-                                            </td>
+                                            <tr>
+                                                <td><?php echo $employees['name'] ?></td>
+                                                <td><?php echo $employees['position'] ?></td>
+                                                <td>
+                                                    <?php
+                                                    // Check if the employee has tax records
+                                                    $stmt_deductions = $conn->prepare("SELECT * FROM deductions WHERE user_id = ?");
+                                                    $stmt_deductions->execute([$employees['user_id']]);
+                                                    $deductions = $stmt_deductions->fetch();
+
+                                                    if ($deductions): ?>
+                                                        <!-- Display "Update Tax" button if tax records exist -->
+                                                        <a href="update_employee_tax.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-warning">Update Tax</a>
+                                                    <?php else: ?>
+                                                        <!-- Display "Add Tax" button if no tax records exist -->
+                                                        <a href="add_employee_tax.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-info">Add Tax</a>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <a href="update_employee.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-warning">Update</a>
+                                                    <a href="delete_employee.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a>
+                                                </td>
+                                            </tr>
                                         <?php endforeach ?>
                                     </tbody>
                                 </table>
