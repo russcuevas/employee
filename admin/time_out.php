@@ -1,21 +1,36 @@
 <?php
 include('../database/connection.php');
 
-$stmt = $conn->prepare("
-    SELECT 
-        u.name AS employee_name, 
-        t.log_in, 
-        t.log_out, 
-        t.present, 
-        DATE(t.log_in) AS log_date 
-    FROM timekeeping t
-    INNER JOIN users u ON t.user_id = u.user_id
-");
-$stmt->execute();
-$records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $user_id = $_POST['user_id'];
+    $log_date = $_POST['log_date'];
+    $log_out = $_POST['log_out'];
 
+    $stmt = $conn->prepare("SELECT user_id FROM timekeeping WHERE user_id = ? AND log_date = ?");
+    $stmt->execute([$user_id, $log_date]);
+    $attendance = $stmt->fetch();
+
+    if ($attendance) {
+        $update_stmt = $conn->prepare("UPDATE timekeeping SET log_out = ? WHERE user_id = ? AND log_date = ?");
+        if ($update_stmt->execute([$log_out, $user_id, $log_date])) {
+            echo "<script>alert('Time Out Recorded Successfully!'); window.location.href='time_out.php';</script>";
+        } else {
+            echo "<script>alert('Failed to record time out!'); window.location.href='time_out.php';</script>";
+        }
+    } else {
+        echo "<script>alert('No time-in record found for this user today!'); window.location.href='time_out.php';</script>";
+    }
+}
+
+$users_stmt = $conn->query("SELECT user_id, name FROM users");
+$users = $users_stmt->fetchAll();
+
+$date_today = date('Y-m-d');
+
+$timekeeping_stmt = $conn->prepare("SELECT t.*, u.name FROM timekeeping t JOIN users u ON t.user_id = u.user_id WHERE t.log_date = ?");
+$timekeeping_stmt->execute([$date_today]);
+$timekeeping_records = $timekeeping_stmt->fetchAll();
 ?>
-
 <!DOCTYPE html>
 <html>
 
@@ -32,6 +47,9 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- DataTables -->
     <link rel="stylesheet" href="plugins/datatables-bs4/css/dataTables.bootstrap4.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
@@ -106,7 +124,7 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="time_records.php" class="nav-link active">
+                                    <a href="time_records.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p> Records</p>
                                     </a>
@@ -118,7 +136,7 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="time_out.php" class="nav-link">
+                                    <a href="time_out.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p> Time Out</p>
                                     </a>
@@ -153,12 +171,12 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Time Records</h1>
+                            <h1>Time Out</h1>
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                                <li class="breadcrumb-item active">Time Records</li>
+                                <li class="breadcrumb-item active">Time Out</li>
                             </ol>
                         </div>
                     </div>
@@ -171,36 +189,57 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Time Record List</h3>
+                                <h3 class="card-title"><?php echo date('Y-m-d');  ?></h3>
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
+                                <form id="quickForm" action="" method="POST">
+                                    <div class="form-group">
+                                        <label for="pagibig">DATE TODAY</label>
+                                        <input style="text-align: center;" type="date" class="form-control" name=" log_date" value="<?php echo date('Y-m-d'); ?>" required readonly>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Left Column (Employee) -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="user_id">Employee:</label>
+                                                <select class="form-control select2" name="user_id" required>
+                                                    <?php foreach ($users as $user): ?>
+                                                        <option value="<?php echo $user['user_id']; ?>"><?php echo $user['name']; ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column (Time In) -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="log_out">Time Out:</label>
+                                                <input class="form-control" type="time" name="log_out" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- /.card-body -->
+                                    <div class="d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary">TIME OUT</button>
+                                    </div>
+                                </form>
                                 <table id="example2" class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
                                             <th>Employee</th>
                                             <th>Time In</th>
                                             <th>Time Out</th>
-                                            <th>Status</th>
-                                            <th>Date</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($records as $record): ?>
+                                        <?php foreach ($timekeeping_records as $record): ?>
                                             <tr>
-                                                <td><?php echo htmlspecialchars($record['employee_name']); ?></td>
-                                                <td><?php echo date("h:i A", strtotime($record['log_in'])); ?></td>
-                                                <td><?php echo $record['log_out'] ? date("h:i A", strtotime($record['log_out'])) : 'N/A'; ?></td>
-                                                <td>
-                                                    <?php
-                                                    if ($record['present'] == 1) {
-                                                        echo 'Present';
-                                                    } else {
-                                                        echo 'Absent';
-                                                    }
-                                                    ?>
-                                                </td>
-                                                <td><?php echo date("F j, Y", strtotime($record['log_date'])); ?></td>
+                                                <td><?php echo htmlspecialchars($record['name']); ?></td>
+                                                <td><?php echo htmlspecialchars($record['log_in']); ?></td>
+                                                <td><?php echo !empty($record['log_out']) ? htmlspecialchars($record['log_out']) : 'Not yet timed out'; ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -233,6 +272,8 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 -->
+    <script src="plugins/select2/js/select2.full.min.js"></script>
     <!-- jquery-validation -->
     <script src="plugins/jquery-validation/jquery.validate.min.js"></script>
     <script src="plugins/jquery-validation/additional-methods.min.js"></script>
@@ -254,6 +295,47 @@ $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 "ordering": true,
                 "info": true,
                 "autoWidth": false,
+            });
+        });
+    </script>
+    <script>
+        $(function() {
+            $('#quickForm').validate({
+                rules: {
+                    email: {
+                        required: true,
+                        email: true,
+                    },
+                    password: {
+                        required: true,
+                        minlength: 5
+                    },
+                    terms: {
+                        required: true
+                    },
+                },
+                messages: {
+                    email: {
+                        required: "Please enter a email address",
+                        email: "Please enter a valid email address"
+                    },
+                    password: {
+                        required: "Please provide a password",
+                        minlength: "Your password must be at least 5 characters long"
+                    },
+                    terms: "Please accept our terms"
+                },
+                errorElement: 'span',
+                errorPlacement: function(error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function(element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function(element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
             });
         });
     </script>
