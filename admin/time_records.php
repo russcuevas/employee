@@ -7,6 +7,8 @@ if (!isset($admin_id)) {
     header('location:admin_login.php');
 }
 
+$today = date("Y-m-d");
+
 $stmt = $conn->prepare("
     SELECT 
         u.user_id, 
@@ -15,34 +17,54 @@ $stmt = $conn->prepare("
         t.log_out, 
         t.present, 
         t.log_date, 
-        t.absent
+        t.absent,
+        t.attendance_date
     FROM timekeeping t
     RIGHT JOIN users u ON t.user_id = u.user_id
+    WHERE t.attendance_date = :today OR t.log_date = :today
 ");
-
+$stmt->bindParam(':today', $today);
 $stmt->execute();
 $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-if (isset($_POST['user_id'])) {
-    $user_id = $_POST['user_id'];
-    $log_date = date("Y-m-d");
 
-    $stmt = $conn->prepare("
-        INSERT INTO timekeeping (user_id, log_in, log_out, present, absent, log_date)
-        VALUES ('$user_id', NULL, NULL, 0, 1, '$log_date')
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['attendance_date'])) {
+    $attendance_date = $_POST['attendance_date'];
+    $stmt = $conn->prepare("SELECT user_id FROM users");
+    $stmt->execute();
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $insertStmt = $conn->prepare("
+        INSERT INTO timekeeping (user_id, log_in, log_out, attendance_date, present, absent, log_date)
+        VALUES (:user_id, NULL, NULL, :attendance_date, 0, 0, NULL)
     ");
 
-    if ($stmt->execute()) {
-        $_SESSION['success'] = "Mark as absent";
-        header('Location: time_records.php');
-        exit();
-    } else {
-        echo "Error updating the record.";
+    foreach ($users as $user) {
+        $checkStmt = $conn->prepare("
+            SELECT COUNT(*) 
+            FROM timekeeping 
+            WHERE user_id = :user_id AND (attendance_date = :attendance_date OR log_date = :attendance_date)
+        ");
+        $checkStmt->bindParam(':user_id', $user['user_id']);
+        $checkStmt->bindParam(':attendance_date', $attendance_date);
+        $checkStmt->execute();
+        $existingRecord = $checkStmt->fetchColumn();
+
+        if ($existingRecord == 0) {
+            $insertStmt->bindParam(':user_id', $user['user_id']);
+            $insertStmt->bindParam(':attendance_date', $attendance_date);
+            $insertStmt->execute();
+        }
     }
+
+    $_SESSION['success'] = "Attendance for today added successfully";
+    header('Location: time_records.php');
+    exit();
 }
 
-$today = date("Y-m-d");
+
 
 ?>
 <!DOCTYPE html>
@@ -219,58 +241,59 @@ $today = date("Y-m-d");
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <?php if (count($records) > 0): ?>
-                                    <h3 id="currentTime"></h3>
-                                    <table id="example2" class="table table-bordered table-hover">
-                                        <thead>
+                                <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#attendanceModal">
+                                    Add Attendance Date +
+                                </button>
+                                <h3 id="currentTime"></h3>
+                                <!-- Button to trigger modal -->
+
+                                <table id="example2" class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Employee</th>
+                                            <th>Time In</th>
+                                            <th>Time Out</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($records as $record): ?>
                                             <tr>
-                                                <th>Employee</th>
-                                                <th>Time In</th>
-                                                <th>Time Out</th>
-                                                <th>Status</th>
-                                                <th>Date</th>
-                                                <th>Actions</th>
+                                                <td><?php echo isset($record['employee_name']) ? htmlspecialchars($record['employee_name']) : 'N/A'; ?></td>
+                                                <td><?php echo $record['log_in'] ? date("h:i A", strtotime($record['log_in'])) : 'N/A'; ?></td>
+                                                <td><?php echo $record['log_out'] ? date("h:i A", strtotime($record['log_out'])) : 'N/A'; ?></td>
+                                                <td>
+                                                    <?php
+                                                    if ($record['present'] == 1) {
+                                                        echo 'Present';
+                                                    } else if ($record['present'] === NULL) {
+                                                        echo 'No record';
+                                                    } else if ($record['absent'] === 0 || $record['present'] === 0) {
+                                                        echo 'No record';
+                                                    } else {
+                                                        echo 'Absent';
+                                                    }
+                                                    ?>
+
+                                                </td>
+                                                <td>
+                                                    <?php echo $record['log_date'] ? date("F j, Y", strtotime($record['log_date'])) : 'N/A'; ?>
+                                                </td>
+                                                <td>
+                                                    <?php if ($record['log_in'] == null && $record['absent'] != 1): ?>
+                                                        <button type="button" class="btn btn-danger btn-sm" data-id="<?php echo $record['user_id']; ?>" onclick="markAsAbsent(this)">Mark as absent</button>
+                                                    <?php elseif ($record['log_in'] != null): ?>
+                                                        <p>Present</p>
+                                                    <?php elseif ($record['absent'] == 1): ?>
+                                                        <p>Absent</p>
+                                                    <?php endif; ?>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($records as $record): ?>
-                                                <tr>
-                                                    <td><?php echo htmlspecialchars($record['employee_name']); ?></td>
-                                                    <td><?php echo $record['log_in'] ? date("h:i A", strtotime($record['log_in'])) : 'N/A'; ?></td>
-                                                    <td><?php echo $record['log_out'] ? date("h:i A", strtotime($record['log_out'])) : 'N/A'; ?></td>
-                                                    <td>
-                                                        <?php
-                                                        if ($record['present'] == 1) {
-                                                            echo 'Present';
-                                                        } else if ($record['present'] === NULL) {
-                                                            echo 'No record';
-                                                        } else {
-                                                            echo 'Absent';
-                                                        }
-                                                        ?>
-                                                    </td>
-                                                    <td>
-                                                        <?php echo date("F j, Y"); ?>
-                                                    </td>
-                                                    <td>
-                                                        <?php if ($record['log_in'] == null && $record['absent'] != 1): ?>
-                                                            <form method="POST">
-                                                                <input type="hidden" name="user_id" value="<?php echo $record['user_id']; ?>">
-                                                                <button type="submit" class="btn btn-danger btn-sm">Mark as absent</button>
-                                                            </form>
-                                                        <?php elseif ($record['log_in'] != null): ?>
-                                                            <p>Present</p>
-                                                        <?php elseif ($record['absent'] == 1): ?>
-                                                            <p>Absent</p>
-                                                        <?php endif; ?>
-                                                    </td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                <?php else: ?>
-                                    <p>No records found for today.</p>
-                                <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
                             </div>
                             <!-- /.card-body -->
                         </div>
@@ -286,6 +309,34 @@ $today = date("Y-m-d");
         <footer class="main-footer">
             <strong>Copyright &copy; 2025 <a href="https://adminlte.io">System Name</a>.</strong> All rights reserved.
         </footer>
+
+        <!-- Modal -->
+        <div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="attendanceModalLabel">Add Attendance Date</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="POST">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="attendance_date">Date Today</label>
+                                <input type="text" class="form-control" id="attendance_date" name="attendance_date" value="<?php echo date('Y-m-d'); ?>" readonly>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Attendance date</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
 
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">
@@ -310,6 +361,26 @@ $today = date("Y-m-d");
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
     <!-- page script -->
+    <script>
+        function markAsAbsent(button) {
+            var userId = button.getAttribute('data-id');
+
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'mark_as_absent.php'; // Replace with the actual PHP script handling the request
+
+            // Create a hidden input field for user_id
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'user_id';
+            input.value = userId;
+            form.appendChild(input);
+
+            // Append the form to the body and submit
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
     <script>
         $(function() {
             $("#example1").DataTable();
