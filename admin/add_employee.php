@@ -2,6 +2,11 @@
 session_start();
 include '../database/connection.php';
 
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:admin_login.php');
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];
     $username = $_POST['username'];

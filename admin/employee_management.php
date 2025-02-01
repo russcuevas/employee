@@ -2,6 +2,11 @@
 session_start();
 include '../database/connection.php';
 
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:admin_login.php');
+}
+
 // READ USER
 $get_users = "SELECT * FROM `users`";
 $get_stmt = $conn->query($get_users);
