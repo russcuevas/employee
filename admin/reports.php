@@ -134,7 +134,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="payroll_management.php" class="nav-link active">
+                                    <a href="payroll_management.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Create Payslip
@@ -142,7 +142,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="reports.php" class="nav-link">
+                                    <a href="reports.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p> Reports</p>
                                     </a>
@@ -170,12 +170,12 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Create Payslip</h1>
+                            <h1>Reports</h1>
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                                <li class="breadcrumb-item active">Create Payslip</li>
+                                <li class="breadcrumb-item active">Reports</li>
                             </ol>
                         </div>
                     </div>
@@ -188,17 +188,32 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">List of Employee</h3>
+                                <h3 class="card-title">Reports</h3>
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
+                                <!-- Filter Section -->
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="from_date">From</label>
+                                        <input type="date" class="form-control" id="from_date" name="from_date">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="to_date">To</label>
+                                        <input type="date" class="form-control" id="to_date" name="to_date">
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                    </div>
+                                </div>
+
+                                <!-- Table Section -->
                                 <table id="example2" class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
                                             <th>Employee</th>
                                             <th>Position</th>
                                             <th>Salary</th>
-                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -207,9 +222,6 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <td><?php echo $employees['name'] ?></td>
                                                 <td><?php echo $employees['position'] ?></td>
                                                 <td><?php echo $employees['basic_salary'] ?></td>
-                                                <td>
-                                                    <button class="btn btn-warning" onclick="createPayslip(<?php echo $employees['user_id']; ?>)">Create Payslip</button>
-                                                </td>
                                             </tr>
                                         <?php endforeach ?>
                                     </tbody>
@@ -223,6 +235,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <!-- /.row -->
             </section>
+
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
