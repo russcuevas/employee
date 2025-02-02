@@ -88,6 +88,14 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="employee_schedule.php" class="nav-link active">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    Employee Schedule
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="leave_request.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
@@ -124,8 +132,8 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item has-treeview menu-open">
-                            <a href="#" class="nav-link active">
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-chart-pie"></i>
                                 <p>
                                     Payroll Management
@@ -142,7 +150,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="reports.php" class="nav-link active">
+                                    <a href="reports.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p> Reports</p>
                                     </a>

@@ -133,7 +133,7 @@ $schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link">
+                            <a href="index.php" class="nav-link active">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -165,7 +165,7 @@ $schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="payroll_management.php" class="nav-link active">
+                            <a href="payroll_management.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Payroll Management
