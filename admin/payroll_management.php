@@ -78,7 +78,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link active">
+                            <a href="index.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -138,8 +138,8 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link active">
                                 <i class="nav-icon fas fa-cash-register"></i>
                                 <p>
                                     Payroll Management
@@ -148,7 +148,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="payroll_management.php" class="nav-link">
+                                    <a href="payroll_management.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Create Payslip

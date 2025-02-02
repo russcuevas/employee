@@ -95,7 +95,7 @@ if (isset($_GET['user_id'])) {
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link active">
+                            <a href="index.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -103,7 +103,7 @@ if (isset($_GET['user_id'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_management.php" class="nav-link">
+                            <a href="employee_management.php" class="nav-link active">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Employee Management

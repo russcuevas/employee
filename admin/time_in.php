@@ -104,7 +104,7 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link active">
+                            <a href="index.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -135,8 +135,8 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+                        <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link active">
                                 <i class="nav-icon fas fa-user-clock"></i>
                                 <p>
                                     Time Records
@@ -151,7 +151,7 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="time_in.php" class="nav-link">
+                                    <a href="time_in.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p> Time In</p>
                                     </a>
@@ -250,7 +250,8 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
                                 <form id="quickForm" action="" method="POST">
                                     <div class="form-group">
                                         <label for="pagibig">DATE TODAY</label>
-                                        <input style="text-align: center;" type="date" class="form-control" name=" log_date" value="<?php echo date('Y-m-d'); ?>" required readonly>
+                                        <h3 id="currentTime"></h3>
+                                        <input style="text-align: center;" type="hidden" class="form-control" name=" log_date" value="<?php echo date('Y-m-d'); ?>" required readonly>
                                     </div>
 
                                     <div class="row">
@@ -343,6 +344,34 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
     <script src="dist/js/adminlte.min.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
+    <script>
+        function updateTime() {
+            let now = new Date();
+
+            let monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+            let day = now.getDate();
+            let month = monthNames[now.getMonth()];
+            let year = now.getFullYear();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            let ampm = hours >= 12 ? 'pm' : 'am';
+
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            let formattedTime = month + ' ' + day + ', ' + year + ' - ' + hours + ':' + minutes + ':' + seconds + ampm;
+
+            document.getElementById("currentTime").innerText = formattedTime;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
     <!-- page script -->
     <script>
         $(function() {
