@@ -31,8 +31,10 @@ if (isset($_GET['user_id'])) {
         $pagibig_number = $_POST['pagibig_number'];
         $tin_number = $_POST['tin_number'];
         $philhealth_number = $_POST['philhealth_number'];
+        $vl_credits = $_POST['vl_credits']; // Added field
+        $sl_credits = $_POST['sl_credits']; // Added field
 
-        $update_sql = "UPDATE users SET name = ?, username = ?, email = ?, position = ?, basic_salary = ?, sss_number = ?, pagibig_number = ?, tin_number = ?, philhealth_number = ? WHERE user_id = ?";
+        $update_sql = "UPDATE users SET name = ?, username = ?, email = ?, position = ?, basic_salary = ?, sss_number = ?, pagibig_number = ?, tin_number = ?, philhealth_number = ?, vl_credits = ?, sl_credits = ? WHERE user_id = ?";
         $stmt = $conn->prepare($update_sql);
         $stmt->execute([
             $name,
@@ -44,6 +46,8 @@ if (isset($_GET['user_id'])) {
             $pagibig_number,
             $tin_number,
             $philhealth_number,
+            $vl_credits,
+            $sl_credits,
             $user_id
         ]);
 
@@ -96,23 +100,100 @@ if (isset($_GET['user_id'])) {
                     </div>
                 </div>
                 <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
                             <a href="index.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>Dashboard</p>
+                                <p>
+                                    Dashboard
+                                </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="employee_management.php" class="nav-link active">
                                 <i class="nav-icon fas fa-users"></i>
-                                <p>Employee Management</p>
+                                <p>
+                                    Employee Management
+                                </p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="employee_schedule.php" class="nav-link">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    Employee Schedule
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="leave_request.php" class="nav-link">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    Leave Request
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-chart-pie"></i>
+                                <p>
+                                    Time Records
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="time_records.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p> Records</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="time_in.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p> Time In</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="time_out.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p> Time Out</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-chart-pie"></i>
+                                <p>
+                                    Payroll Management
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="payroll_management.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            Create Payslip
+                                        </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="reports.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p> Reports</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
                             <a href="logout.php" class="nav-link">
-                                <i class="nav-icon fas fa-sign-out-alt"></i>
-                                <p>Logout</p>
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    Logout
+                                </p>
                             </a>
                         </li>
                     </ul>
@@ -212,11 +293,17 @@ if (isset($_GET['user_id'])) {
                                             <label for="philhealth_number">PhilHealth Number</label>
                                             <input type="text" name="philhealth_number" class="form-control" id="philhealth_number" value="<?php echo htmlspecialchars($employee['philhealth_number']); ?>" required>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="vl_credits">VL Credits</label>
+                                            <input type="number" name="vl_credits" class="form-control" id="vl_credits" value="<?php echo htmlspecialchars($employee['vl_credits']); ?>" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sl_credits">SL Credits</label>
+                                            <input type="number" name="sl_credits" class="form-control" id="sl_credits" value="<?php echo htmlspecialchars($employee['sl_credits']); ?>" required>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Submit Button -->
                             <div class="col-md-12">
                                 <div class="card-footer text-right">
                                     <button type="submit" class="btn btn-primary">Update Employee</button>

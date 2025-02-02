@@ -250,7 +250,8 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
                                 <form id="quickForm" action="" method="POST">
                                     <div class="form-group">
                                         <label for="pagibig">DATE TODAY</label>
-                                        <input style="text-align: center;" type="date" class="form-control" name=" log_date" value="<?php echo date('Y-m-d'); ?>" required readonly>
+                                        <h3 id="currentTime"></h3>
+                                        <input style="text-align: center;" type="hidden" class="form-control" name=" log_date" value="<?php echo date('Y-m-d'); ?>" required readonly>
                                     </div>
 
                                     <div class="row">
@@ -294,8 +295,8 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
                                             ?>
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($record['name']); ?></td>
-                                                    <td><?php echo htmlspecialchars($record['log_in']); ?></td>
-                                                    <td><?php echo !empty($record['log_out']) ? htmlspecialchars($record['log_out']) : 'Not yet timed out'; ?></td>
+                                                    <td><?php echo $record['log_in'] ? date("h:i A", strtotime($record['log_in'])) : 'N/A'; ?></td>
+                                                    <td><?php echo !empty($record['log_out']) ? date("h:i A", strtotime($record['log_out'])) : 'Not yet timed out'; ?></td>
                                                 </tr>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
@@ -342,6 +343,35 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
     <!-- page script -->
+    <script>
+        function updateTime() {
+            let now = new Date();
+
+            let monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+            let day = now.getDate();
+            let month = monthNames[now.getMonth()];
+            let year = now.getFullYear();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            let ampm = hours >= 12 ? 'pm' : 'am';
+
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+
+            let formattedTime = month + ' ' + day + ', ' + year + ' - ' + hours + ':' + minutes + ':' + seconds + ampm;
+
+            document.getElementById("currentTime").innerText = formattedTime;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+
     <script>
         $(function() {
             $("#example1").DataTable();

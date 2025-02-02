@@ -79,15 +79,15 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_management.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <a href="employee_management.php" class="nav-link active">
+                                <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Employee Management
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_schedule.php" class="nav-link active">
+                            <a href="employee_schedule.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Employee Schedule
@@ -218,8 +218,8 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <tr>
                                             <th>Employee</th>
                                             <th>Position</th>
-                                            <th>Tax</th>
-                                            <th>Information</th>
+                                            <th>Tax / Deductions</th>
+                                            <th>Information / Credits</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -229,16 +229,13 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <td><?php echo $employees['position'] ?></td>
                                                 <td>
                                                     <?php
-                                                    // Check if the employee has tax records
                                                     $stmt_deductions = $conn->prepare("SELECT * FROM deductions WHERE user_id = ?");
                                                     $stmt_deductions->execute([$employees['user_id']]);
                                                     $deductions = $stmt_deductions->fetch();
 
                                                     if ($deductions): ?>
-                                                        <!-- Display "Update Tax" button if tax records exist -->
                                                         <a href="update_employee_tax.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-warning">Update Tax</a>
                                                     <?php else: ?>
-                                                        <!-- Display "Add Tax" button if no tax records exist -->
                                                         <a href="add_employee_tax.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-info">Add Tax</a>
                                                     <?php endif; ?>
                                                 </td>

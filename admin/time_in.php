@@ -294,8 +294,9 @@ $timekeeping_records = $timekeeping_stmt->fetchAll();
                                             ?>
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($record['name']); ?></td>
-                                                    <td><?php echo htmlspecialchars($record['log_in']); ?></td>
-                                                    <td><?php echo !empty($record['log_out']) ? htmlspecialchars($record['log_out']) : 'Not yet timed out'; ?></td>
+                                                    <td><?php echo $record['log_in'] ? date("h:i A", strtotime($record['log_in'])) : 'N/A'; ?></td>
+                                                    <td><?php echo !empty($record['log_out']) ? date("h:i A", strtotime($record['log_out'])) : 'Not yet timed out'; ?></td>
+
                                                 </tr>
                                             <?php endif; ?>
                                         <?php endforeach; ?>

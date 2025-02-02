@@ -168,15 +168,15 @@ if (isset($_GET['user_id'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_management.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <a href="employee_management.php" class="nav-link active">
+                                <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Employee Management
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_schedule.php" class="nav-link active">
+                            <a href="employee_schedule.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Employee Schedule

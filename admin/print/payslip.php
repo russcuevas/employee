@@ -172,20 +172,27 @@ $schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
 
         <div class="schedule">
             <table>
-                <tr>
-                    <th>Work Days</th>
-                    <td><?php echo $schedule['work_days']; ?></td>
-                </tr>
-                <tr>
-                    <th>Shift Start</th>
-                    <td><?php echo $schedule['shift_start']; ?></td>
-                </tr>
-                <tr>
-                    <th>Shift End</th>
-                    <td><?php echo $schedule['shift_end']; ?></td>
-                </tr>
+                <?php if ($schedule): ?>
+                    <tr>
+                        <th>Work Days</th>
+                        <td><?php echo $schedule['work_days']; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Shift Start</th>
+                        <td><?php echo $schedule['shift_start']; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Shift End</th>
+                        <td><?php echo $schedule['shift_end']; ?></td>
+                    </tr>
+                <?php else: ?>
+                    <tr>
+                        <th colspan="2">No schedule set</th>
+                    </tr>
+                <?php endif; ?>
             </table>
         </div>
+
 
         <div class="deductions">
             <table>

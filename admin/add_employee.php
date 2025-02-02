@@ -18,13 +18,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $pagibig_number = $_POST['pagibig_number'];
     $tin_number = $_POST['tin_number'];
     $philhealth_number = $_POST['philhealth_number'];
-    $sql = "INSERT INTO users (name, username, password, email, position, basic_salary, sss_number, pagibig_number, tin_number, philhealth_number) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sl_credits = $_POST['sl_credits'];
+    $vl_credits = $_POST['vl_credits'];
+
+    $sql = "INSERT INTO users (name, username, password, email, position, basic_salary, sss_number, pagibig_number, tin_number, philhealth_number, sl_credits, vl_credits) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$name, $username, $password, $email, $position, $basic_salary, $sss_number, $pagibig_number, $tin_number, $philhealth_number]);
+    $stmt->execute([
+        $name,
+        $username,
+        $password,
+        $email,
+        $position,
+        $basic_salary,
+        $sss_number,
+        $pagibig_number,
+        $tin_number,
+        $philhealth_number,
+        $sl_credits,
+        $vl_credits
+    ]);
     $_SESSION['success'] = "Employee added successfully!";
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -85,15 +100,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_management.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <a href="employee_management.php" class="nav-link active">
+                                <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Employee Management
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_schedule.php" class="nav-link active">
+                            <a href="employee_schedule.php" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Employee Schedule
@@ -277,6 +292,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <label for="philhealth_number">PhilHealth Number</label>
                                             <input type="text" name="philhealth_number" class="form-control" id="philhealth_number" placeholder="Enter PhilHealth number" required>
                                         </div>
+                                        <div class="form-group">
+                                            <label for="sl_credits">Sick Leave Credits</label>
+                                            <input type="number" name="sl_credits" class="form-control" id="sl_credits" placeholder="Enter SL credits" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="vl_credits">Vacation Leave Credits</label>
+                                            <input type="number" name="vl_credits" class="form-control" id="vl_credits" placeholder="Enter VL credits" required>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
