@@ -54,7 +54,7 @@ if (isset($_POST['login'])) {
 <body class="hold-transition login-page">
     <div class="login-box">
         <div class="login-logo">
-            <a href="admin_login.php"><b>Admin Login</a>
+            <a style="text-decoration: none;" href="admin_login.php"><b>Admin Login</a>
         </div>
         <!-- /.login-logo -->
         <div class="card">
@@ -80,7 +80,7 @@ if (isset($_POST['login'])) {
 
                     <button type="submit" name="login" class="btn btn-primary float-right">Login</button>
                     <p class="mb-1">
-                        <a href="forgot-password.html">I forgot my password</a>
+                        <a style="text-decoration: none;" href="forgot-password.html">I forgot my password</a>
                     </p>
 
                     <!-- /.card-body -->
