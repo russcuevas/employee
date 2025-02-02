@@ -64,10 +64,10 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="index3.html" class="brand-link">
-                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+            <a href="index.php" class="brand-link">
+                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                     style="opacity: .8">
-                <span class="brand-text font-weight-light">System Name</span>
+                <span class="brand-text font-weight-light">EMS</span>
             </a>
 
             <!-- Sidebar -->
@@ -236,7 +236,6 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <th>Payslip Date</th>
                                             <th>Gross Salary</th>
                                             <th>Net Salary</th>
-                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -248,9 +247,6 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <td><?php echo $report['period_start']; ?> -- <?php echo $report['period_end']; ?></td>
                                                     <td><?php echo number_format($report['gross_salary'], 2); ?></td>
                                                     <td><?php echo number_format($report['net_salary'], 2); ?></td>
-                                                    <td>
-                                                        <a class="btn btn-info" href="generate_report_solo.php?id=<?php echo $report['payroll_id']; ?>">Print slip</a>
-                                                    </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>
@@ -275,9 +271,7 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
-        <footer class="main-footer">
-            <strong>Copyright &copy; 2025 <a href="https://adminlte.io">System Name</a>.</strong> All rights reserved.
-        </footer>
+
 
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">

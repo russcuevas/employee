@@ -55,12 +55,13 @@ foreach ($timekeeping as $log) {
     $total_absent += $log['absent'];
 }
 
+
+// Absences reason
 $query_absences = "SELECT * FROM absences WHERE user_id = :user_id AND absence_date BETWEEN :from_date AND :to_date";
 $stmt_absences = $conn->prepare($query_absences);
 $stmt_absences->execute([':user_id' => $user_id, ':from_date' => $from_date, ':to_date' => $to_date]);
 $absences = $stmt_absences->fetchAll(PDO::FETCH_ASSOC);
 
-// Initialize the reason string for display
 $absence_reasons = "";
 if (!empty($absences)) {
     foreach ($absences as $absence) {
@@ -147,10 +148,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="index3.html" class="brand-link">
-                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+            <a href="index.php" class="brand-link">
+                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                     style="opacity: .8">
-                <span class="brand-text font-weight-light">System Name</span>
+                <span class="brand-text font-weight-light">EMS</span>
             </a>
 
             <!-- Sidebar -->
@@ -427,7 +428,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <!-- INPUT GENERATED AT generated_at -->
                                             <input type="hidden" name="generated_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
 
-                                            <button class="btn btn-success float-right" type="submit">Generate Reports</button>
+                                            <button class="btn btn-success float-right" type="submit">Add to reports</button>
                                         </form>
                                     </div>
                                 </div>
@@ -436,7 +437,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <div class="col-12">
                                         <a href="payroll_management.php" class="btn btn-default"><i class="fas fa-arrow-left"></i> Back</a>
                                         <a href="print/payslip.php?user_id=<?php echo $user['user_id']; ?>&from_date=<?php echo $from_date; ?>&to_date=<?php echo $to_date; ?>" class="btn btn-info float-right mt-2" target="_blank">
-                                            <i class="fas fa-print"></i> Print
+                                            <i class="fas fa-print"></i> Print copy
                                         </a>
 
                                     </div>
@@ -450,12 +451,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
-        <footer class="main-footer">
-            <div class="float-right d-none d-sm-block">
-                <b>Version</b> 3.0.1-pre
-            </div>
-            <strong>Copyright &copy; 2014-2025 <a href="http://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
-        </footer>
     </div>
     <!-- ./wrapper -->
 

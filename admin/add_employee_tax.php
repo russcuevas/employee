@@ -67,12 +67,11 @@ if (isset($_GET['user_id'])) {
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="index3.html" class="brand-link">
-                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+            <a href="index.php" class="brand-link">
+                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                     style="opacity: .8">
-                <span class="brand-text font-weight-light">System Name</span>
+                <span class="brand-text font-weight-light">EMS</span>
             </a>
-
             <!-- Sidebar -->
             <div class="sidebar">
                 <!-- Sidebar user panel (optional) -->
@@ -185,126 +184,7 @@ if (isset($_GET['user_id'])) {
             </div>
         </aside>
 
-        <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
-            <!-- Brand Logo -->
-            <a href="index3.html" class="brand-link">
-                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
-                    style="opacity: .8">
-                <span class="brand-text font-weight-light">System Name</span>
-            </a>
 
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="info">
-                        <a href="#" class="d-block">Admin Panel</a>
-                    </div>
-                </div>
-
-                <!-- Sidebar Menu -->
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <li class="nav-item">
-                            <a href="index.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Dashboard
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="employee_management.php" class="nav-link active">
-                                <i class="nav-icon fas fa-users"></i>
-                                <p>
-                                    Employee Management
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="employee_schedule.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Employee Schedule
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="leave_request.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Leave Request
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-chart-pie"></i>
-                                <p>
-                                    Time Records
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="time_records.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p> Records</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="time_in.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p> Time In</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="time_out.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p> Time Out</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-chart-pie"></i>
-                                <p>
-                                    Payroll Management
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="payroll_management.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>
-                                            Create Payslip
-                                        </p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="reports.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p> Reports</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="logout.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Logout
-                                </p>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </aside>
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
@@ -400,9 +280,7 @@ if (isset($_GET['user_id'])) {
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
-        <footer class="main-footer">
-            <strong>Copyright &copy; 2025 <a href="https://adminlte.io">System Name</a>.</strong> All rights reserved.
-        </footer>
+
 
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">

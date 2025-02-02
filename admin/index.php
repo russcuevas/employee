@@ -6,6 +6,26 @@ $admin_id = $_SESSION['admin_id'];
 if (!isset($admin_id)) {
   header('location:admin_login.php');
 }
+
+// GET THE USERS
+$get_users = "SELECT COUNT(*) AS total_users FROM `users`";
+$stmt_total_users = $conn->prepare($get_users);
+$stmt_total_users->execute();
+$result_total_users = $stmt_total_users->fetch(PDO::FETCH_ASSOC);
+$total_users = $result_total_users['total_users'];
+// END GET TOTAL USERS
+
+$get_absences = "SELECT COUNT(*) AS total_absences FROM absences WHERE status = 'Pending'";
+$stmt_total_absences = $conn->prepare($get_absences);
+$stmt_total_absences->execute();
+$result_total_absences = $stmt_total_absences->fetch(PDO::FETCH_ASSOC);
+$total_absences = $result_total_absences['total_absences'];
+
+$get_reports = "SELECT COUNT(*) AS total_reports FROM payroll";
+$stmt_total_reports = $conn->prepare($get_reports);
+$stmt_total_reports->execute();
+$result_total_reports = $stmt_total_reports->fetch(PDO::FETCH_ASSOC);
+$total_reports = $result_total_reports['total_reports'];
 ?>
 <!DOCTYPE html>
 <html>
@@ -55,10 +75,10 @@ if (!isset($admin_id)) {
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
-      <a href="index3.html" class="brand-link">
+      <a href="index.php" class="brand-link">
         <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
           style="opacity: .8">
-        <span class="brand-text font-weight-light">System Name</span>
+        <span class="brand-text font-weight-light">EMS</span>
       </a>
 
       <!-- Sidebar -->
@@ -183,10 +203,7 @@ if (!isset($admin_id)) {
               <h1 class="m-0 text-dark">Dashboard</h1>
             </div><!-- /.col -->
             <div class="col-sm-6">
-              <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard v1</li>
-              </ol>
+
             </div><!-- /.col -->
           </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -198,63 +215,49 @@ if (!isset($admin_id)) {
         <div class="container-fluid">
           <!-- Small boxes (Stat box) -->
           <div class="row">
-            <div class="col-lg-3 col-6">
+            <!-- ./col -->
+            <div class="col-lg-4 col-6">
               <!-- small box -->
               <div class="small-box bg-info">
                 <div class="inner">
-                  <h3>150</h3>
+                  <h3><?php echo $total_users ?></h3>
 
-                  <p>New Orders</p>
-                </div>
-                <div class="icon">
-                  <i class="ion ion-bag"></i>
-                </div>
-                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-              </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-              <!-- small box -->
-              <div class="small-box bg-success">
-                <div class="inner">
-                  <h3>53<sup style="font-size: 20px">%</sup></h3>
-
-                  <p>Bounce Rate</p>
-                </div>
-                <div class="icon">
-                  <i class="ion ion-stats-bars"></i>
-                </div>
-                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-              </div>
-            </div>
-            <!-- ./col -->
-            <div class="col-lg-3 col-6">
-              <!-- small box -->
-              <div class="small-box bg-warning">
-                <div class="inner">
-                  <h3>44</h3>
-
-                  <p>User Registrations</p>
+                  <p>Total Employee</p>
                 </div>
                 <div class="icon">
                   <i class="ion ion-person-add"></i>
                 </div>
-                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="employee_management.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
-            <div class="col-lg-3 col-6">
+            <div class="col-lg-4 col-6">
               <!-- small box -->
-              <div class="small-box bg-danger">
+              <div class="small-box bg-info">
                 <div class="inner">
-                  <h3>65</h3>
+                  <h3><?php echo $total_absences ?></h3>
 
-                  <p>Unique Visitors</p>
+                  <p>Leave Request</p>
+                </div>
+                <div class="icon">
+                  <i class="ion ion-stats-bars"></i>
+                </div>
+                <a href="leave_request.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+              </div>
+            </div>
+            <!-- ./col -->
+            <div class="col-lg-4 col-6">
+              <!-- small box -->
+              <div class="small-box bg-info">
+                <div class="inner">
+                  <h3><?php echo $total_reports ?></h3>
+
+                  <p>Reports</p>
                 </div>
                 <div class="icon">
                   <i class="ion ion-pie-graph"></i>
                 </div>
-                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <a href="reports.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
               </div>
             </div>
             <!-- ./col -->
@@ -282,13 +285,6 @@ if (!isset($admin_id)) {
       <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
-    <footer class="main-footer">
-      <strong>Copyright &copy; 2014-2019 <a href="http://adminlte.io">AdminLTE.io</a>.</strong>
-      All rights reserved.
-      <div class="float-right d-none d-sm-inline-block">
-        <b>Version</b> 3.0.1-pre
-      </div>
-    </footer>
 
     <!-- Control Sidebar -->
     <aside class="control-sidebar control-sidebar-dark">
