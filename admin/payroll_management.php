@@ -72,7 +72,8 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="info">
-                        <a href="#" class="d-block">Admin Panel</a>
+                        <a href="#" class="d-block" style="text-decoration: none;">Admin Panel</a>
+
                     </div>
                 </div>
 
@@ -200,6 +201,21 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Main content -->
             <section class="content">
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success">
+                        <?php echo $_SESSION['success']; ?>
+                        <?php unset($_SESSION['success']);
+                        ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger">
+                        <?php echo $_SESSION['error']; ?>
+                        <?php unset($_SESSION['error']);
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
@@ -222,9 +238,9 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <tr>
                                                 <td><?php echo $employees['name'] ?></td>
                                                 <td><?php echo $employees['position'] ?></td>
-                                                <td><?php echo $employees['basic_salary'] ?></td>
+                                                <td>₱<?php echo $employees['basic_salary'] ?></td>
                                                 <td>
-                                                    <button class="btn btn-warning" onclick="createPayslip(<?php echo $employees['user_id']; ?>)">Create Payslip</button>
+                                                    <button class="btn btn-success" onclick="createPayslip(<?php echo $employees['user_id']; ?>)"><i class="fas fa-edit"></i> Generate Payslip</button>
                                                 </td>
                                             </tr>
                                         <?php endforeach ?>
@@ -285,11 +301,18 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
             Swal.fire({
                 title: 'Enter Dates',
                 html: `
-                    <label>FROM</label>
-                    <input type="date" id="from_date" class="swal2-input" placeholder="From Date" required><br>
-                    <label>TO</label><input type="date" id="to_date" class="swal2-input" placeholder="To Date" required>
-                `,
+                <div style="text-align: center;">
+                    <label style="font-weight: bold; font-size: 16px; display: block; margin-bottom: 4px; margin-top: 10px;">FROM</label>
+                    <input type="date" id="from_date" class="swal2-input" placeholder="From Date" style="width: 70%; padding: 10px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #ccc;">
+
+                    <label style="font-weight: bold; font-size: 16px; display: block; margin-bottom: 4px;">TO</label>
+                    <input type="date" id="to_date" class="swal2-input" placeholder="To Date" style="width: 70%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc;">
+                </div>
+            `,
                 focusConfirm: false,
+                confirmButtonText: 'Proceed',
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
                 preConfirm: () => {
                     const fromDate = document.getElementById('from_date').value;
                     const toDate = document.getElementById('to_date').value;
@@ -300,7 +323,9 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                     }
 
                     window.location.href = `create_payslip.php?user_id=${userId}&from_date=${fromDate}&to_date=${toDate}`;
-                }
+                },
+                cancelButtonColor: '#d33',
+                confirmButtonColor: '#3085d6'
             });
         }
     </script>

@@ -68,7 +68,8 @@ $schedules = $query->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="info">
-                        <a href="#" class="d-block">Admin Panel</a>
+                        <a href="#" class="d-block" style="text-decoration: none;">Admin Panel</a>
+
                     </div>
                 </div>
 
@@ -237,8 +238,8 @@ $schedules = $query->fetchAll(PDO::FETCH_ASSOC);
                                                     ( <?php echo $schedules['work_days'] ?> )
                                                 </td>
                                                 <td>
-                                                    <a href="update_schedule.php?user_id=<?php echo $schedules['user_id']; ?>" class="btn btn-warning">Update</a>
-                                                    <a href="delete_schedule.php?user_id=<?php echo $schedules['user_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this schedule?');">Delete</a>
+                                                    <a href="update_schedule.php?user_id=<?php echo $schedules['user_id']; ?>" class="btn btn-success"><i class="fas fa-edit"></i> Update</a>
+                                                    <a href="delete_schedule.php?user_id=<?php echo $schedules['user_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this schedule?');"><i class="fas fa-trash-alt"></i> Delete</a>
                                                 </td>
 
                                             </tr>

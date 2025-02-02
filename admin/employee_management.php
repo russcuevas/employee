@@ -64,7 +64,8 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="info">
-                        <a href="#" class="d-block">Admin Panel</a>
+                        <a href="#" class="d-block" style="text-decoration: none;">Admin Panel</a>
+
                     </div>
                 </div>
 
@@ -235,14 +236,14 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     $deductions = $stmt_deductions->fetch();
 
                                                     if ($deductions): ?>
-                                                        <a href="update_employee_tax.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-warning">Update Tax</a>
+                                                        <a href="update_employee_tax.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-success"><i class="fas fa-edit"></i> Update Tax</a>
                                                     <?php else: ?>
-                                                        <a href="add_employee_tax.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-info">Add Tax</a>
+                                                        <a href="add_employee_tax.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-info">Add Tax +</a>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <a href="update_employee.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-warning">Update</a>
-                                                    <a href="delete_employee.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this employee?');">Delete</a>
+                                                    <a href="update_employee.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-success"><i class="fas fa-edit"></i> Update</a>
+                                                    <a href="delete_employee.php?user_id=<?php echo $employees['user_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this employee?');"><i class="fas fa-trash-alt"></i> Delete</a>
                                                 </td>
                                             </tr>
                                         <?php endforeach ?>

@@ -2,13 +2,12 @@
 session_start();
 include '../database/connection.php';
 
-// Ensure admin is logged in
-if (!isset($_SESSION['admin_id'])) {
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
     header('location:admin_login.php');
-    exit;
 }
 
-// Get user_id and date range from URL parameters
+// Get user_id and dates from URL parameters
 $user_id = $_GET['user_id'];
 $from_date = $_GET['from_date'];
 $to_date = $_GET['to_date'];
@@ -19,112 +18,101 @@ $stmt_user = $conn->prepare($get_user);
 $stmt_user->execute([':user_id' => $user_id]);
 $user = $stmt_user->fetch(PDO::FETCH_ASSOC);
 
-if (!$user) {
-    die("User not found.");
-}
-
-// Function to count working days (Monday to Friday) in a given month
-function countWorkingDaysInMonth($month, $year)
-{
-    $start_date = new DateTime("{$year}-{$month}-01");
-    $end_date = new DateTime("{$year}-{$month}-01");
-    $end_date->modify('last day of this month');
-
-    $total_days = $end_date->format('d');
-
-    $work_days = 0;
-
-    for ($day = 1; $day <= $total_days; $day++) {
-        $date = new DateTime("{$year}-{$month}-{$day}");
-
-        if ($date->format('N') < 6) {
-            $work_days++;
-        }
-    }
-
-    return $work_days;
-}
-
-
-$current_year = date('Y');
-$current_month = date('m');
-
-$from_date_parts = explode('-', $from_date);
-$to_date_parts = explode('-', $to_date);
-$from_month = $from_date_parts[1];
-$from_year = $from_date_parts[0];
-$to_month = $to_date_parts[1];
-$to_year = $to_date_parts[0];
-
-if ($from_month == $to_month) {
-    $total_working_days_in_range = countWorkingDaysInMonth($from_month, $from_year);
-} else {
-    $total_working_days_in_range = countWorkingDaysInMonth($from_month, $from_year);
-}
-
-$basic_salary = $user['basic_salary'];
-$daily_salary = ($total_working_days_in_range > 0) ? $basic_salary / $total_working_days_in_range : 0;
-
-$query_timekeeping = "SELECT SUM(present) AS total_present, SUM(absent) AS total_absent 
-                      FROM timekeeping 
-                      WHERE user_id = :user_id AND log_date BETWEEN :from_date AND :to_date";
+// Fetch timekeeping records between the selected dates
+$query_timekeeping = "SELECT * FROM timekeeping WHERE user_id = :user_id AND log_date BETWEEN :from_date AND :to_date";
 $stmt_timekeeping = $conn->prepare($query_timekeeping);
 $stmt_timekeeping->execute([':user_id' => $user_id, ':from_date' => $from_date, ':to_date' => $to_date]);
-$timekeeping = $stmt_timekeeping->fetch(PDO::FETCH_ASSOC);
+$timekeeping = $stmt_timekeeping->fetchAll(PDO::FETCH_ASSOC);
 
-$total_present = $timekeeping['total_present'] ?? 0;
-$total_absent = $timekeeping['total_absent'] ?? 0;
-
+// Fetch deductions
 $query_deductions = "SELECT * FROM deductions WHERE user_id = :user_id";
 $stmt_deductions = $conn->prepare($query_deductions);
 $stmt_deductions->execute([':user_id' => $user_id]);
-$deductions = $stmt_deductions->fetch(PDO::FETCH_ASSOC) ?: [];
+$deductions = $stmt_deductions->fetch(PDO::FETCH_ASSOC);
 
-$sss = $deductions['sss'] ?? 0;
-$pagibig = $deductions['pagibig'] ?? 0;
-$philhealth = $deductions['philhealth'] ?? 0;
-$tax = $deductions['tax'] ?? 0;
+// Check if deductions data is valid
+if ($deductions === false) {
+    $deductions = []; // Ensure it's an empty array to avoid further errors
+}
+
+// Calculate deductions
+$sss = isset($deductions['sss']) ? $deductions['sss'] : 0;
+$pagibig = isset($deductions['pagibig']) ? $deductions['pagibig'] : 0;
+$philhealth = isset($deductions['philhealth']) ? $deductions['philhealth'] : 0;
+$tax = isset($deductions['tax']) ? $deductions['tax'] : 0;
+
+// Calculate total deductions and net salary
 $total_deductions = $sss + $pagibig + $philhealth + $tax;
+$net_salary = $user['basic_salary'] - $total_deductions;
 
-$gross_salary = $daily_salary * $total_present;
-$net_salary = $gross_salary - $total_deductions;
+// Initialize counters for presents and absents
+$total_present = 0;
+$total_absent = 0;
 
-$query_absences = "SELECT absence_date, reason FROM absences 
-                   WHERE user_id = :user_id AND status = 'Approved' 
-                   AND absence_date BETWEEN :from_date AND :to_date";
+// Count presents and absents
+foreach ($timekeeping as $log) {
+    $total_present += $log['present'];
+    $total_absent += $log['absent'];
+}
+
+
+// Absences reason
+$query_absences = "SELECT * FROM absences WHERE user_id = :user_id AND status = 'Approved' AND absence_date BETWEEN :from_date AND :to_date";
 $stmt_absences = $conn->prepare($query_absences);
 $stmt_absences->execute([':user_id' => $user_id, ':from_date' => $from_date, ':to_date' => $to_date]);
 $absences = $stmt_absences->fetchAll(PDO::FETCH_ASSOC);
 
-$absence_reasons = !empty($absences) ? implode('<br>', array_map(function ($a) {
-    return "{$a['absence_date']} - {$a['reason']}";
-}, $absences)) : "No file leaves.";
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $generated_at = date('Y-m-d H:i:s');
-
-    $insert_query = "INSERT INTO payroll (user_id, deduction_id, period_start, period_end, basic_salary, gross_salary, net_salary, generated_at) 
-                     VALUES (:user_id, :deduction_id, :period_start, :period_end, :basic_salary, :gross_salary, :net_salary, :generated_at)";
-    $stmt = $conn->prepare($insert_query);
-    $stmt->execute([
-        ':user_id' => $user_id,
-        ':deduction_id' => $deductions['deduction_id'] ?? null,
-        ':period_start' => $from_date,
-        ':period_end' => $to_date,
-        ':basic_salary' => $basic_salary,
-        ':gross_salary' => $gross_salary,
-        ':net_salary' => $net_salary,
-        ':generated_at' => $generated_at
-    ]);
-
-    $_SESSION['success'] = "Payroll report generated successfully.";
-    header('Location: payroll_management.php');
-    exit;
+$absence_reasons = "";
+if (!empty($absences)) {
+    foreach ($absences as $absence) {
+        $absence_reasons .= $absence['absence_date'] . " - " . $absence['reason'] . "<br>";
+    }
+} else {
+    $absence_reasons = "No reason";
 }
 
+
+$query_schedule = "SELECT shift_start, shift_end, work_days FROM schedules WHERE user_id = :user_id";
+$stmt_schedule = $conn->prepare($query_schedule);
+$stmt_schedule->execute([':user_id' => $user_id]);
+$schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
+
+// Handle form submission to generate report
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Collect form data
+    $user_id = $_POST['user_id'];
+    $deduction_id = $_POST['deduction_id'];
+    $period_start = $_POST['period_start'];
+    $period_end = $_POST['period_end'];
+    $gross_salary = $_POST['gross_salary'];
+    $net_salary = $_POST['net_salary'];
+    $generated_at = $_POST['generated_at'];
+
+    // Prepare SQL statement to insert the payroll record
+    $insert_query = "INSERT INTO payroll (user_id, deduction_id, period_start, period_end, gross_salary, net_salary, generated_at) 
+                     VALUES (:user_id, :deduction_id, :period_start, :period_end, :gross_salary, :net_salary, :generated_at)";
+
+    $stmt = $conn->prepare($insert_query);
+
+    // Bind values
+    $stmt->bindParam(':user_id', $user_id);
+    $stmt->bindParam(':deduction_id', $deduction_id);
+    $stmt->bindParam(':period_start', $period_start);
+    $stmt->bindParam(':period_end', $period_end);
+    $stmt->bindParam(':gross_salary', $gross_salary);
+    $stmt->bindParam(':net_salary', $net_salary);
+    $stmt->bindParam(':generated_at', $generated_at);
+
+    // Execute the query
+    if ($stmt->execute()) {
+        echo "Payroll report generated successfully.";
+        // Optionally, you can redirect to a different page after successful insertion
+        header('Location: payroll_management.php');
+    } else {
+        echo "Error: Unable to generate payroll report.";
+    }
+}
 ?>
-
-
 
 <!DOCTYPE html>
 <html>
@@ -305,7 +293,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-12">
+                            <!-- Main content -->
                             <div class="invoice p-3 mb-3">
+                                <!-- title row -->
                                 <div class="row">
                                     <div class="col-12">
                                         <h4>
@@ -313,9 +303,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <small class="float-right"><?php echo date("F j, Y", strtotime($from_date)); ?> -- <?php echo date("F j, Y", strtotime($to_date)); ?></small>
                                         </h4>
                                     </div>
+                                    <!-- /.col -->
                                 </div>
-                                <br>
-                                <br>
+                                <!-- info row -->
                                 <div class="row invoice-info">
                                     <div class="col-sm-4">
                                         <table class="table table-bordered">
@@ -339,20 +329,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Basic Salary:</strong></td>
-                                                    <td>₱<?php echo number_format($basic_salary, 2); ?></td>
+                                                    <td>₱<?php echo number_format($user['basic_salary'], 2); ?></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><strong>Daily Salary:</strong></td>
-                                                    <td>₱<?php echo number_format($daily_salary, 2); ?></td>
+                                                    <td><strong>Shift Start:</strong></td>
+                                                    <td><?php echo isset($schedule['shift_start']) ? date("h:i A", strtotime($schedule['shift_start'])) : "Not Assigned"; ?></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><strong>Working Days:</strong></td>
-                                                    <td><?php echo $total_working_days_in_range; ?> days</td>
+                                                    <td><strong>Shift End:</strong></td>
+                                                    <td><?php echo isset($schedule['shift_end']) ? date("h:i A", strtotime($schedule['shift_end'])) : "Not Assigned"; ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Work Days:</strong></td>
+                                                    <td><?php echo isset($schedule['work_days']) ? $schedule['work_days'] : "Not Assigned"; ?></td>
                                                 </tr>
                                             </tbody>
                                         </table>
-
                                     </div>
+                                    <!-- /.col -->
 
                                     <div class="col-sm-4">
                                         <table class="table table-bordered">
@@ -364,7 +358,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <tbody>
                                                 <tr>
                                                     <td><strong>Present Days:</strong></td>
-                                                    <td><?php echo $total_present; ?> - <span style="color: red; font-weight: 900;">₱<?php echo number_format($gross_salary, 2); ?></span></td>
+                                                    <td><?php echo $total_present; ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Absent Days:</strong></td>
@@ -372,11 +366,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 </tr>
                                                 <tr>
                                                     <td><strong>Reason:</strong></td>
-                                                    <td><?php echo $absence_reasons; ?></td>
+                                                    <td>
+                                                        <?php echo $absence_reasons; ?>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
+                                    <!-- /.col -->
 
                                     <div class="col-sm-4">
                                         <table class="table table-bordered">
@@ -403,59 +400,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     <td>₱<?php echo number_format($tax, 2); ?></td>
                                                 </tr>
                                                 <tr>
-                                                    <td><strong>Gross Salary</strong></td>
-                                                    <td><strong>₱<?php echo number_format($gross_salary, 2); ?></strong></td>
+                                                    <td><strong>Total Deductions:</strong></td>
+                                                    <td><strong>₱<?php echo number_format($total_deductions, 2); ?></strong></td>
                                                 </tr>
-                                                <tr>
-                                                    <td><strong style="color: red;">Deductions:</strong></td>
-                                                    <td><strong style="color: red;">₱<?php echo number_format($total_deductions, 2); ?></strong></td>
-                                                </tr>
-
                                             </tbody>
                                         </table>
                                     </div>
+                                    <!-- /.col -->
 
+                                    <!-- /.col -->
+                                </div>
+                                <!-- /.row -->
 
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <h3 style="text-align: right;"><strong> = NET SALARY: ₱<?php echo number_format($net_salary, 2); ?></strong></h3>
-                                            <form action="" method="POST">
-                                                <!-- INPUT USER ID user_id -->
-                                                <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
-                                                <!-- INPUT DEDUCTION ID deduction_id -->
-                                                <input type="hidden" name="deduction_id" value="<?php echo $deductions['deduction_id']; ?>">
-                                                <!-- INPUT PERIOD START period_start -->
-                                                <input type="hidden" name="period_start" value="<?php echo $from_date; ?>">
-                                                <!-- INPUT PERIOD END period_end -->
-                                                <input type="hidden" name="period_end" value="<?php echo $to_date; ?>">
-                                                <input type="hidden" name="basic_salary" value="<?php echo number_format($basic_salary, 2); ?>">
+                                <!-- Salary Calculation -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h3 style="text-align: right;"><strong>Net Salary: ₱<?php echo number_format($net_salary, 2); ?></strong></h3>
+                                        <form action="" method="POST">
+                                            <!-- INPUT USER ID user_id -->
+                                            <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                            <!-- INPUT DEDUCTION ID deduction_id -->
+                                            <input type="hidden" name="deduction_id" value="<?php echo $deductions['deduction_id']; ?>">
+                                            <!-- INPUT PERIOD START period_start -->
+                                            <input type="hidden" name="period_start" value="<?php echo $from_date; ?>">
+                                            <!-- INPUT PERIOD END period_end -->
+                                            <input type="hidden" name="period_end" value="<?php echo $to_date; ?>">
+                                            <!-- INPUT GROSS SALARY gross_salary -->
+                                            <input type="hidden" name="gross_salary" value="<?php echo $user['basic_salary']; ?>">
+                                            <!-- INPUT NET SALARY net_salary -->
+                                            <input type="hidden" name="net_salary" value="<?php echo $net_salary; ?>">
+                                            <!-- INPUT GENERATED AT generated_at -->
+                                            <input type="hidden" name="generated_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
 
-                                                <!-- INPUT GROSS SALARY gross_salary -->
-                                                <input type="hidden" name="gross_salary" value="<?php echo number_format($gross_salary, 2); ?>">
-                                                <!-- INPUT NET SALARY net_salary -->
-                                                <input type="hidden" name="net_salary" value="<?php echo $net_salary; ?>">
-                                                <!-- INPUT GENERATED AT generated_at -->
-                                                <input type="hidden" name="generated_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
-
-                                                <button class="btn btn-success float-right" type="submit">Add to reports</button>
-                                            </form>
-                                        </div>
+                                            <button class="btn btn-success float-right" type="submit">Add to reports</button>
+                                        </form>
                                     </div>
+                                </div>
 
-                                    <div class="row no-print">
-                                        <div class="col-12">
-                                            <a href="payroll_management.php" class="btn btn-default"><i class="fas fa-arrow-left"></i> Back</a>
-                                            <a href="print/payslip.php?user_id=<?php echo $user['user_id']; ?>&from_date=<?php echo $from_date; ?>&to_date=<?php echo $to_date; ?>" class="btn btn-info float-right mt-2" target="_blank">
-                                                <i class="fas fa-print"></i> Print copy
-                                            </a>
-                                        </div>
+                                <div class="row no-print">
+                                    <div class="col-12">
+                                        <a href="payroll_management.php" class="btn btn-default"><i class="fas fa-arrow-left"></i> Back</a>
+                                        <a href="print/payslip.php?user_id=<?php echo $user['user_id']; ?>&from_date=<?php echo $from_date; ?>&to_date=<?php echo $to_date; ?>" class="btn btn-info float-right mt-2" target="_blank">
+                                            <i class="fas fa-print"></i> Print copy
+                                        </a>
+
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                            <!-- /.invoice -->
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
             </section>
-
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->

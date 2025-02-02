@@ -79,7 +79,8 @@ if (isset($_GET['user_id'])) {
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="info">
-                        <a href="#" class="d-block">Admin Panel</a>
+                        <a href="#" class="d-block" style="text-decoration: none;">Admin Panel</a>
+
                     </div>
                 </div>
 

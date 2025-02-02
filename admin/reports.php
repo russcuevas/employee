@@ -77,7 +77,8 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="info">
-                        <a href="#" class="d-block">Admin Panel</a>
+                        <a href="#" class="d-block" style="text-decoration: none;">Admin Panel</a>
+
                     </div>
                 </div>
 
@@ -225,7 +226,7 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <input type="date" class="form-control" id="to_date" name="to_date" value="<?php echo isset($to_date) ? $to_date : ''; ?>">
                                         </div>
                                         <div class="col-md-4 d-flex align-items-end">
-                                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                            <button type="submit" class="btn btn-primary w-100">Filter <i class="fas fa-filter" style="font-size: 15px;"></i></button>
                                         </div>
                                     </div>
                                 </form>
@@ -236,6 +237,7 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <th>Employee Name</th>
                                             <th>Position</th>
                                             <th>Payslip Date</th>
+                                            <th>Basic Salary</th>
                                             <th>Gross Salary</th>
                                             <th>Net Salary</th>
                                         </tr>
@@ -247,6 +249,7 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <td><?php echo htmlspecialchars($report['name']); ?></td>
                                                     <td><?php echo htmlspecialchars($report['position']); ?></td>
                                                     <td><?php echo $report['period_start']; ?> -- <?php echo $report['period_end']; ?></td>
+                                                    <td><?php echo number_format($report['basic_salary'], 2); ?></td>
                                                     <td><?php echo number_format($report['gross_salary'], 2); ?></td>
                                                     <td><?php echo number_format($report['net_salary'], 2); ?></td>
                                                 </tr>
