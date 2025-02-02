@@ -16,7 +16,7 @@ $stmt->execute([':user_id' => $user_id]);
 if ($stmt->rowCount() > 0) {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 } else {
-    echo "User not found.";
+    header('location:logout.php');
     exit;
 }
 

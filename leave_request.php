@@ -9,6 +9,18 @@ if (!isset($user_id)) {
     exit;
 }
 
+$query = "SELECT * FROM users WHERE user_id = :user_id";
+$stmt = $conn->prepare($query);
+$stmt->execute([':user_id' => $user_id]);
+
+if ($stmt->rowCount() > 0) {
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+} else {
+    header('location:logout.php');
+    exit;
+}
+
+
 $sql = "SELECT * FROM absences WHERE user_id = :user_id";
 $stmt = $conn->prepare($sql);
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
