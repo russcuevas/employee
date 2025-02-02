@@ -51,6 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css?v=3.2.0">
+    <link rel="stylesheet" href="dist/css/bootstrap.min.css">
+
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -196,13 +198,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Add Schedule</h1>
+                            <h1>Update Schedule</h1>
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="index.php">Home</a></li>
                                 <li class="breadcrumb-item"><a href="employee_schedule.php">Employee Schedule</a></li>
-                                <li class="breadcrumb-item active">Add Schedule</li>
+                                <li class="breadcrumb-item active">Update Schedule</li>
                             </ol>
                         </div>
                     </div>

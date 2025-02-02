@@ -287,7 +287,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
             $("#example1").DataTable();
             $('#example2').DataTable({
                 "paging": true,
-                "lengthChange": true,
+                "lengthChange": false,
                 "searching": true,
                 "ordering": true,
                 "info": true,

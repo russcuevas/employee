@@ -8,19 +8,19 @@ if (isset($_SESSION['admin_id'])) {
 }
 
 if (isset($_POST['login'])) {
-    $username = $_POST['username'];
+    $email = $_POST['email'];
     $password = $_POST['password'];
 
     // Modify the query to check for user_type = 'admin'
-    $select_admin = $conn->prepare("SELECT * FROM `admin` WHERE username = ? AND password = ? ");
-    $select_admin->execute([$username, $password]);
+    $select_admin = $conn->prepare("SELECT * FROM `admin` WHERE email = ? AND password = ? ");
+    $select_admin->execute([$email, $password]);
 
     if ($select_admin->rowCount() > 0) {
         $admin_id = $select_admin->fetch(PDO::FETCH_ASSOC);
         $_SESSION['admin_id'] = $admin_id['admin_id'];
         header('location:index.php');
     } else {
-        $_SESSION['error'] = 'Incorrect username or password';
+        $_SESSION['error'] = 'Incorrect email or password';
         header('location:admin_login.php');
         exit();
     }
@@ -45,6 +45,8 @@ if (isset($_POST['login'])) {
     <link rel="stylesheet" href="plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="dist/css/bootstrap.min.css">
+
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
@@ -67,8 +69,8 @@ if (isset($_POST['login'])) {
                 <?php endif; ?>
                 <form id="quickForm" action="" method="POST">
                     <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" name="username" class="form-control" id="username" placeholder="Username" required>
+                        <label for="email">Email</label>
+                        <input type="text" name="email" class="form-control" id="email" placeholder="Email" required>
                     </div>
 
                     <div class="form-group">

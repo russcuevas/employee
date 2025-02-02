@@ -79,6 +79,8 @@ $schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="../dist/css/bootstrap.min.css">
+
     <title>Payslip</title>
     <style>
         body {
