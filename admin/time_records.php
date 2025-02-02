@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['attendance_date'])) {
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link">
+                            <a href="index.php" class="nav-link active">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -133,15 +133,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['attendance_date'])) {
                         </li>
                         <li class="nav-item">
                             <a href="employee_management.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Employee Management
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_schedule.php" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <a href="employee_schedule.php" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-day"></i>
                                 <p>
                                     Employee Schedule
                                 </p>
@@ -149,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['attendance_date'])) {
                         </li>
                         <li class="nav-item">
                             <a href="leave_request.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-file"></i>
                                 <p>
                                     Leave Request
                                 </p>
@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['attendance_date'])) {
                         </li>
                         <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-chart-pie"></i>
+                                <i class="nav-icon fas fa-user-clock"></i>
                                 <p>
                                     Time Records
                                     <i class="right fas fa-angle-left"></i>
@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['attendance_date'])) {
                         </li>
                         <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-chart-pie"></i>
+                                <i class="nav-icon fas fa-cash-register"></i>
                                 <p>
                                     Payroll Management
                                     <i class="right fas fa-angle-left"></i>
@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['attendance_date'])) {
 
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-sign-out-alt"></i>
                                 <p>
                                     Logout
                                 </p>

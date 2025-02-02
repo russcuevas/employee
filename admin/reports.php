@@ -7,12 +7,23 @@ if (!isset($admin_id)) {
     header('location:admin_login.php');
 }
 
-// READ USER
-$get_users = "SELECT * FROM `users`";
-$get_stmt = $conn->query($get_users);
-$employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
-// END READ USER
+$query = "SELECT p.*, u.name, u.position 
+          FROM payroll p
+          JOIN users u ON p.user_id = u.user_id";
 
+if (isset($_POST['from_date']) && isset($_POST['to_date']) && !empty($_POST['from_date']) && !empty($_POST['to_date'])) {
+    $from_date = $_POST['from_date'];
+    $to_date = $_POST['to_date'];
+    $query .= " WHERE p.generated_at BETWEEN :from_date AND :to_date";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':from_date', $from_date);
+    $stmt->bindParam(':to_date', $to_date);
+} else {
+    $stmt = $conn->prepare($query);
+}
+
+$stmt->execute();
+$reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -72,7 +83,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
-                            <a href="index.php" class="nav-link">
+                            <a href="index.php" class="nav-link active">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -81,15 +92,15 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </li>
                         <li class="nav-item">
                             <a href="employee_management.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Employee Management
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_schedule.php" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <a href="employee_schedule.php" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-day"></i>
                                 <p>
                                     Employee Schedule
                                 </p>
@@ -97,7 +108,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </li>
                         <li class="nav-item">
                             <a href="leave_request.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-file"></i>
                                 <p>
                                     Leave Request
                                 </p>
@@ -105,7 +116,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </li>
                         <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-chart-pie"></i>
+                                <i class="nav-icon fas fa-user-clock"></i>
                                 <p>
                                     Time Records
                                     <i class="right fas fa-angle-left"></i>
@@ -134,7 +145,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </li>
                         <li class="nav-item has-treeview">
                             <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-chart-pie"></i>
+                                <i class="nav-icon fas fa-cash-register"></i>
                                 <p>
                                     Payroll Management
                                     <i class="right fas fa-angle-left"></i>
@@ -160,7 +171,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-sign-out-alt"></i>
                                 <p>
                                     Logout
                                 </p>
@@ -201,38 +212,55 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                             <!-- /.card-header -->
                             <div class="card-body">
                                 <!-- Filter Section -->
-                                <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <label for="from_date">From</label>
-                                        <input type="date" class="form-control" id="from_date" name="from_date">
+                                <form method="POST" action="">
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <label for="from_date">From</label>
+                                            <input type="date" class="form-control" id="from_date" name="from_date" value="<?php echo isset($from_date) ? $from_date : ''; ?>">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="to_date">To</label>
+                                            <input type="date" class="form-control" id="to_date" name="to_date" value="<?php echo isset($to_date) ? $to_date : ''; ?>">
+                                        </div>
+                                        <div class="col-md-4 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                        </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <label for="to_date">To</label>
-                                        <input type="date" class="form-control" id="to_date" name="to_date">
-                                    </div>
-                                    <div class="col-md-4 d-flex align-items-end">
-                                        <button type="submit" class="btn btn-primary w-100">Filter</button>
-                                    </div>
-                                </div>
-
+                                </form>
                                 <!-- Table Section -->
                                 <table id="example2" class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Employee</th>
+                                            <th>Employee Name</th>
                                             <th>Position</th>
-                                            <th>Salary</th>
+                                            <th>Payslip Date</th>
+                                            <th>Gross Salary</th>
+                                            <th>Net Salary</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($employee as $employees): ?>
+                                        <?php if (isset($reports) && count($reports) > 0): ?>
+                                            <?php foreach ($reports as $report): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($report['name']); ?></td>
+                                                    <td><?php echo htmlspecialchars($report['position']); ?></td>
+                                                    <td><?php echo $report['period_start']; ?> -- <?php echo $report['period_end']; ?></td>
+                                                    <td><?php echo number_format($report['gross_salary'], 2); ?></td>
+                                                    <td><?php echo number_format($report['net_salary'], 2); ?></td>
+                                                    <td>
+                                                        <a class="btn btn-info" href="generate_report_solo.php?id=<?php echo $report['payroll_id']; ?>">Print slip</a>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
                                             <tr>
-                                                <td><?php echo $employees['name'] ?></td>
-                                                <td><?php echo $employees['position'] ?></td>
-                                                <td><?php echo $employees['basic_salary'] ?></td>
+                                                <td colspan="9" class="text-center">No reports available for the selected dates.</td>
                                             </tr>
-                                        <?php endforeach ?>
+                                        <?php endif; ?>
                                     </tbody>
+
+
                                 </table>
                             </div>
                             <!-- /.card-body -->

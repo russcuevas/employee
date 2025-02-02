@@ -95,39 +95,86 @@ if (isset($_GET['user_id'])) {
                         </li>
                         <li class="nav-item">
                             <a href="employee_management.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-users"></i>
                                 <p>
                                     Employee Management
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="employee_schedule.php" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-day"></i>
+                                <p>
+                                    Employee Schedule
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="leave_request.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-file"></i>
                                 <p>
                                     Leave Request
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="time_records.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-user-clock"></i>
                                 <p>
                                     Time Records
+                                    <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="time_records.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p> Records</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="time_in.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p> Time In</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="time_out.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p> Time Out</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a href="payroll_management.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cash-register"></i>
                                 <p>
                                     Payroll Management
+                                    <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="payroll_management.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>
+                                            Create Payslip
+                                        </p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="reports.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p> Reports</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
+
                         <li class="nav-item">
                             <a href="logout.php" class="nav-link">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-sign-out-alt"></i>
                                 <p>
                                     Logout
                                 </p>
