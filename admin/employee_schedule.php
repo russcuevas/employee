@@ -7,14 +7,16 @@ if (!isset($admin_id)) {
     header('location:admin_login.php');
 }
 
-// READ USER
-$get_users = "SELECT * FROM `users`";
-$get_stmt = $conn->query($get_users);
-$employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
-// END READ USER
+$query = $conn->prepare("
+    SELECT s.schedule_id, u.user_id, u.name, u.position, s.shift_start, s.shift_end, s.work_days 
+    FROM schedules s
+    INNER JOIN users u ON s.user_id = u.user_id
+");
 
+
+$query->execute();
+$schedules = $query->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html>
 
@@ -88,7 +90,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="employee_schedule.php" class="nav-link">
+                            <a href="employee_schedule.php" class="nav-link active">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Employee Schedule
@@ -132,8 +134,8 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item has-treeview menu-open">
-                            <a href="#" class="nav-link active">
+                        <li class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-chart-pie"></i>
                                 <p>
                                     Payroll Management
@@ -142,7 +144,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="payroll_management.php" class="nav-link active">
+                                    <a href="payroll_management.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>
                                             Create Payslip
@@ -178,12 +180,12 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1>Create Payslip</h1>
+                            <h1>Employee Schedules</h1>
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                                <li class="breadcrumb-item active">Create Payslip</li>
+                                <li class="breadcrumb-item active">Employee Schedules</li>
                             </ol>
                         </div>
                     </div>
@@ -192,32 +194,51 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Main content -->
             <section class="content">
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success">
+                        <?php echo $_SESSION['success']; ?>
+                        <?php unset($_SESSION['success']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger">
+                        <?php echo $_SESSION['error']; ?>
+                        <?php unset($_SESSION['error']); ?>
+                    </div>
+                <?php endif; ?>
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">List of Employee</h3>
+                                <h3 class="card-title">Employee Schedule</h3>
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
+                                <a href="add_schedule.php" class="btn btn-primary">Add schedule +</a>
                                 <table id="example2" class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
                                             <th>Employee</th>
                                             <th>Position</th>
-                                            <th>Salary</th>
+                                            <th>Schedule</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($employee as $employees): ?>
+                                        <?php foreach ($schedules as $schedules): ?>
                                             <tr>
-                                                <td><?php echo $employees['name'] ?></td>
-                                                <td><?php echo $employees['position'] ?></td>
-                                                <td><?php echo $employees['basic_salary'] ?></td>
+                                                <td><?php echo $schedules['name'] ?></td>
+                                                <td><?php echo $schedules['position'] ?></td>
                                                 <td>
-                                                    <button class="btn btn-warning" onclick="createPayslip(<?php echo $employees['user_id']; ?>)">Create Payslip</button>
+                                                    <?php echo $schedules['shift_start'] ?> - <?php echo $schedules['shift_end'] ?>
+                                                    ( <?php echo $schedules['work_days'] ?> )
                                                 </td>
+                                                <td>
+                                                    <a href="update_schedule.php?user_id=<?php echo $schedules['user_id']; ?>" class="btn btn-warning">Update</a>
+                                                    <a href="delete_schedule.php?user_id=<?php echo $schedules['user_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this schedule?');">Delete</a>
+                                                </td>
+
                                             </tr>
                                         <?php endforeach ?>
                                     </tbody>
@@ -257,8 +278,6 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="dist/js/adminlte.min.js"></script>
     <!-- AdminLTE for demo purposes -->
     <script src="dist/js/demo.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <!-- page script -->
     <script>
         $(function() {
@@ -273,31 +292,6 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
             });
         });
     </script>
-    <script>
-        function createPayslip(userId) {
-            Swal.fire({
-                title: 'Enter Dates',
-                html: `
-                    <label>FROM</label>
-                    <input type="date" id="from_date" class="swal2-input" placeholder="From Date" required><br>
-                    <label>TO</label><input type="date" id="to_date" class="swal2-input" placeholder="To Date" required>
-                `,
-                focusConfirm: false,
-                preConfirm: () => {
-                    const fromDate = document.getElementById('from_date').value;
-                    const toDate = document.getElementById('to_date').value;
-
-                    if (!fromDate || !toDate) {
-                        Swal.showValidationMessage('Both dates are required!');
-                        return false;
-                    }
-
-                    window.location.href = `create_payslip.php?user_id=${userId}&from_date=${fromDate}&to_date=${toDate}`;
-                }
-            });
-        }
-    </script>
-
 </body>
 
 </html>
