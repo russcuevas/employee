@@ -8,9 +8,15 @@ if (!isset($admin_id)) {
 }
 
 // READ USER
-$get_users = "SELECT * FROM `users`";
+$get_users = "
+    SELECT u.*, d.deduction_id
+    FROM `users` u
+    LEFT JOIN `deductions` d ON u.user_id = d.user_id
+    WHERE d.deduction_id IS NOT NULL
+";
 $get_stmt = $conn->query($get_users);
 $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // END READ USER
 
 ?>
@@ -221,6 +227,7 @@ $employee = $get_stmt->fetchAll(PDO::FETCH_ASSOC);
                                             </tr>
                                         <?php endforeach ?>
                                     </tbody>
+
                                 </table>
                             </div>
                             <!-- /.card-body -->

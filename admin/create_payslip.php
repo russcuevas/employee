@@ -55,7 +55,6 @@ foreach ($timekeeping as $log) {
     $total_absent += $log['absent'];
 }
 
-
 $query_absences = "SELECT * FROM absences WHERE user_id = :user_id AND absence_date BETWEEN :from_date AND :to_date";
 $stmt_absences = $conn->prepare($query_absences);
 $stmt_absences->execute([':user_id' => $user_id, ':from_date' => $from_date, ':to_date' => $to_date]);
@@ -71,12 +70,46 @@ if (!empty($absences)) {
     $absence_reasons = "No reason";
 }
 
-
 $query_schedule = "SELECT shift_start, shift_end, work_days FROM schedules WHERE user_id = :user_id";
 $stmt_schedule = $conn->prepare($query_schedule);
 $stmt_schedule->execute([':user_id' => $user_id]);
 $schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
 
+// Handle form submission to generate report
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Collect form data
+    $user_id = $_POST['user_id'];
+    $deduction_id = $_POST['deduction_id'];
+    $period_start = $_POST['period_start'];
+    $period_end = $_POST['period_end'];
+    $gross_salary = $_POST['gross_salary'];
+    $net_salary = $_POST['net_salary'];
+    $generated_at = $_POST['generated_at'];
+
+    // Prepare SQL statement to insert the payroll record
+    $insert_query = "INSERT INTO payroll (user_id, deduction_id, period_start, period_end, gross_salary, net_salary, generated_at) 
+                     VALUES (:user_id, :deduction_id, :period_start, :period_end, :gross_salary, :net_salary, :generated_at)";
+
+    $stmt = $conn->prepare($insert_query);
+
+    // Bind values
+    $stmt->bindParam(':user_id', $user_id);
+    $stmt->bindParam(':deduction_id', $deduction_id);
+    $stmt->bindParam(':period_start', $period_start);
+    $stmt->bindParam(':period_end', $period_end);
+    $stmt->bindParam(':gross_salary', $gross_salary);
+    $stmt->bindParam(':net_salary', $net_salary);
+    $stmt->bindParam(':generated_at', $generated_at);
+
+    // Execute the query
+    if ($stmt->execute()) {
+        echo "Payroll report generated successfully.";
+        // Optionally, you can redirect to a different page after successful insertion
+        header('Location: payroll_management.php');
+    } else {
+        echo "Error: Unable to generate payroll report.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -215,7 +248,7 @@ $schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
                                     <div class="col-12">
                                         <h4>
                                             <i class="fas fa-credit-card"></i> Payslip for <?php echo $user['name']; ?>
-                                            <small class="float-right">From: <?php echo $from_date; ?> To: <?php echo $to_date; ?></small>
+                                            <small class="float-right"><?php echo date("F j, Y", strtotime($from_date)); ?> -- <?php echo date("F j, Y", strtotime($to_date)); ?></small>
                                         </h4>
                                     </div>
                                     <!-- /.col -->
@@ -332,7 +365,22 @@ $schedule = $stmt_schedule->fetch(PDO::FETCH_ASSOC);
                                     <div class="col-12">
                                         <h3 style="text-align: right;"><strong>Net Salary: ₱<?php echo number_format($net_salary, 2); ?></strong></h3>
                                         <form action="" method="POST">
-                                            <button class="btn btn-success float-right">Generate Payslip</button>
+                                            <!-- INPUT USER ID user_id -->
+                                            <input type="hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                            <!-- INPUT DEDUCTION ID deduction_id -->
+                                            <input type="hidden" name="deduction_id" value="<?php echo $deductions['deduction_id']; ?>">
+                                            <!-- INPUT PERIOD START period_start -->
+                                            <input type="hidden" name="period_start" value="<?php echo $from_date; ?>">
+                                            <!-- INPUT PERIOD END period_end -->
+                                            <input type="hidden" name="period_end" value="<?php echo $to_date; ?>">
+                                            <!-- INPUT GROSS SALARY gross_salary -->
+                                            <input type="hidden" name="gross_salary" value="<?php echo $user['basic_salary']; ?>">
+                                            <!-- INPUT NET SALARY net_salary -->
+                                            <input type="hidden" name="net_salary" value="<?php echo $net_salary; ?>">
+                                            <!-- INPUT GENERATED AT generated_at -->
+                                            <input type="hidden" name="generated_at" value="<?php echo date('Y-m-d H:i:s'); ?>">
+
+                                            <button class="btn btn-success float-right" type="submit">Generate Reports</button>
                                         </form>
                                     </div>
                                 </div>
