@@ -1,3 +1,19 @@
+<?php
+session_start();
+include '../database/connection.php';
+
+$admin_id = $_SESSION['admin_id'];
+if (!isset($admin_id)) {
+    header('location:admin_login.php');
+}
+
+$query = "SELECT a.*, u.name, u.position 
+          FROM absences a 
+          JOIN users u ON a.user_id = u.user_id";
+$stmt = $conn->prepare($query);
+$stmt->execute();
+$absences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 <!DOCTYPE html>
 <html>
 
@@ -191,9 +207,31 @@
                                         <tr>
                                             <th>Employee</th>
                                             <th>Position</th>
-                                            <th>Actions</th>
+                                            <th>Leave Date</th>
+                                            <th>Reason</th>
+                                            <th>Status</th>
                                         </tr>
                                     </thead>
+                                    <tbody>
+                                        <?php foreach ($absences as $absence): ?>
+                                            <tr>
+                                                <td><?php echo $absence['name']; ?></td>
+                                                <td><?php echo $absence['position']; ?></td>
+                                                <td><?php echo $absence['absence_date']; ?></td>
+                                                <td><?php echo $absence['reason']; ?></td>
+                                                <td>
+                                                    <?php if ($absence['status'] == 'Pending'): ?>
+                                                        <!-- If the status is Pending, show the buttons -->
+                                                        <a href="approve_reject.php?action=approve&id=<?php echo $absence['absence_id']; ?>" class="btn btn-success btn-sm">Approve</a>
+                                                        <a href="approve_reject.php?action=reject&id=<?php echo $absence['absence_id']; ?>" class="btn btn-danger btn-sm">Rejected</a>
+                                                        - Pending
+                                                    <?php else: ?>
+                                                        <?php echo $absence['status']; ?>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
                                 </table>
                             </div>
                             <!-- /.card-body -->
@@ -235,7 +273,7 @@
             $('#example2').DataTable({
                 "paging": true,
                 "lengthChange": false,
-                "searching": false,
+                "searching": true,
                 "ordering": true,
                 "info": true,
                 "autoWidth": false,

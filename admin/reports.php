@@ -249,9 +249,9 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <td><?php echo htmlspecialchars($report['name']); ?></td>
                                                     <td><?php echo htmlspecialchars($report['position']); ?></td>
                                                     <td><?php echo $report['period_start']; ?> -- <?php echo $report['period_end']; ?></td>
-                                                    <td><?php echo number_format($report['basic_salary'], 2); ?></td>
-                                                    <td><?php echo number_format($report['gross_salary'], 2); ?></td>
-                                                    <td><?php echo number_format($report['net_salary'], 2); ?></td>
+                                                    <td>₱<?php echo number_format($report['basic_salary'], 2); ?></td>
+                                                    <td>₱<?php echo number_format($report['gross_salary'], 2); ?></td>
+                                                    <td>₱<?php echo number_format($report['net_salary'], 2); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php else: ?>

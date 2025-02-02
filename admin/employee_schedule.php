@@ -234,9 +234,12 @@ $schedules = $query->fetchAll(PDO::FETCH_ASSOC);
                                                 <td><?php echo $schedules['name'] ?></td>
                                                 <td><?php echo $schedules['position'] ?></td>
                                                 <td>
-                                                    <?php echo $schedules['shift_start'] ?> - <?php echo $schedules['shift_end'] ?>
-                                                    ( <?php echo $schedules['work_days'] ?> )
+                                                    <?php
+                                                    echo date("h:i A", strtotime($schedules['shift_start'])) . " - " . date("h:i A", strtotime($schedules['shift_end'])) .
+                                                        " (" . $schedules['work_days'] . ")";
+                                                    ?>
                                                 </td>
+
                                                 <td>
                                                     <a href="update_schedule.php?user_id=<?php echo $schedules['user_id']; ?>" class="btn btn-success"><i class="fas fa-edit"></i> Update</a>
                                                     <a href="delete_schedule.php?user_id=<?php echo $schedules['user_id']; ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this schedule?');"><i class="fas fa-trash-alt"></i> Delete</a>

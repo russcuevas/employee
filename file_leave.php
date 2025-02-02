@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $update_stmt->bindParam(':new_sl_credits', $new_sl_credits, PDO::PARAM_INT);
                 $update_stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
                 $update_stmt->execute();
-            } elseif ($reason == 'MEDICAL LEAVE' && $vl_credits > 0) {
+            } elseif ($reason == 'VACATION LEAVE' && $vl_credits > 0) {
                 $new_vl_credits = $vl_credits - 1;
                 $update_sql = "UPDATE users SET vl_credits = :new_vl_credits WHERE user_id = :user_id";
                 $update_stmt = $conn->prepare($update_sql);
@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <select name="reason" class="form-control" id="reason" required>
                                                 <option value="">Select Reason</option>
                                                 <option value="SICK LEAVE">Sick Leave</option>
-                                                <option value="MEDICAL LEAVE">Medical Leave</option>
+                                                <option value="VACATION LEAVE">Vacation Leave</option>
                                             </select>
                                         </div>
                                     </div>

@@ -229,7 +229,7 @@ $leave_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $('#example2').DataTable({
                 "paging": true,
                 "lengthChange": false,
-                "searching": false,
+                "searching": true,
                 "ordering": true,
                 "info": true,
                 "autoWidth": false,
