@@ -115,34 +115,22 @@ if ($stmt_schedule->rowCount() > 0) {
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
+
+                        <li class="nav-item">
+                            <a href="time_in.php" class="nav-link">
                                 <i class="nav-icon fas fa-user-clock"></i>
                                 <p>
-                                    Time Records
-                                    <i class="right fas fa-angle-left"></i>
+                                    Time In
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="time_records.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p> Records</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="time_in.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p> Time In</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="time_out.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p> Time Out</p>
-                                    </a>
-                                </li>
-                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="time_out.php" class="nav-link">
+                                <i class="nav-icon fas fa-user-clock"></i>
+                                <p>
+                                    Time Out
+                                </p>
+                            </a>
                         </li>
 
                         <li class="nav-item">
@@ -233,6 +221,32 @@ if ($stmt_schedule->rowCount() > 0) {
                                                 <tr>
                                                     <td><strong>Work Days:</strong></td>
                                                     <td><?php echo isset($schedule['work_days']) ? $schedule['work_days'] : "Not Assigned"; ?></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="2" style="text-align: left; font-size: 18px;"><strong>Other Information</strong></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>TIN Number:</strong></td>
+                                                    <td><?php echo htmlspecialchars($user['tin_number']); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>SSS Number:</strong></td>
+                                                    <td><?php echo htmlspecialchars($user['sss_number']); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Pag-IBIG Number:</strong></td>
+                                                    <td><?php echo htmlspecialchars($user['pagibig_number']); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Philhealth Number:</strong></td>
+                                                    <td><?php echo htmlspecialchars($user['philhealth_number']); ?></td>
                                                 </tr>
                                             </tbody>
                                         </table>
