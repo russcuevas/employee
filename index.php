@@ -78,9 +78,6 @@ if (isset($_POST['login'])) {
                     </div>
 
                     <button type="submit" name="login" class="btn btn-primary float-right">Login</button>
-                    <p class="mb-1">
-                        <a style="text-decoration: none;" href="forgot-password.html">I forgot my password</a>
-                    </p>
 
                     <!-- /.card-body -->
                 </form>

@@ -11,7 +11,6 @@ if (isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Modify the query to check for user_type = 'admin'
     $select_admin = $conn->prepare("SELECT * FROM `admin` WHERE email = ? AND password = ? ");
     $select_admin->execute([$email, $password]);
 
@@ -60,6 +59,13 @@ if (isset($_POST['login'])) {
         <div class="card">
             <div class="card-body login-card-body">
                 <p class="login-box-msg"></p>
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success">
+                        <?php echo $_SESSION['success']; ?>
+                        <?php unset($_SESSION['success']);
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <?php if (isset($_SESSION['error'])): ?>
                     <div class="alert alert-danger">
                         <?php echo $_SESSION['error']; ?>
@@ -80,7 +86,7 @@ if (isset($_POST['login'])) {
 
                     <button type="submit" name="login" class="btn btn-primary float-right">Login</button>
                     <p class="mb-1">
-                        <a style="text-decoration: none;" href="forgot-password.html">I forgot my password</a>
+                        <a href="#" data-toggle="modal" data-target="#forgotPasswordModal">I forgot my password</a>
                     </p>
 
                     <!-- /.card-body -->
@@ -91,6 +97,28 @@ if (isset($_POST['login'])) {
         </div>
     </div>
     <!-- /.login-box -->
+
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="forgotPasswordLabel">Forgot Password</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="forgot_password.php" method="POST">
+                        <div class="form-group">
+                            <label for="forgotEmail">Enter your email</label>
+                            <input type="email" name="email" class="form-control" id="forgotEmail" required>
+                        </div>
+                        <button type="submit" name="reset_password" class="btn btn-primary">Send Reset Link</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- jQuery -->
     <script src="plugins/jquery/jquery.min.js"></script>
